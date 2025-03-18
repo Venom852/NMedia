@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">NMedia</string>
     <string name="nmedia">NMedia!</string>
-    <string name="avatar">avatar</string>
-    <string name="menu">menu</string>
-    <string name="like">like</string>
-    <string name="toshare">toShare</string>
-    <string name="views">views</string>
+    <string name="avatar" translatable="false">avatar</string>
+    <string name="menu" translatable="false">menu</string>
+    <string name="like" translatable="false">like</string>
+    <string name="toshare" translatable="false">toShare</string>
+    <string name="views" translatable="false">views</string>
 </resources>
