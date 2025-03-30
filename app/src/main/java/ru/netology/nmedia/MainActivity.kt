@@ -40,8 +40,6 @@ class MainActivity : AppCompatActivity() {
                 }
             )
 
-            numberLikes.text = CountCalculator.calculator(post.numberLikes)
-
             toShare.setImageResource(
                 if (post.toShare) {
                     R.drawable.ic_shared_24
@@ -49,10 +47,7 @@ class MainActivity : AppCompatActivity() {
                     R.drawable.ic_to_share_24
                 }
             )
-
-            shared.text = CountCalculator.calculator(post.shared)
-            numberViews.text = CountCalculator.calculator(post.numberViews)
-
+            
             like.setOnClickListener {
                 post.likedByMe = !post.likedByMe
                 like.setImageResource(
@@ -83,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             author.text = post.author
             content.text = post.content
             published.text = post.published
-            numberLikes.text = post.numberLikes.toString()
+            numberLikes.text = CountCalculator.calculator(post.numberLikes)
             shared.text = CountCalculator.calculator(post.shared)
             numberViews.text = CountCalculator.calculator(post.numberViews)
         }

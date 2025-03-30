@@ -84,8 +84,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_8dp"
         android:layout_marginTop="@dimen/common_spacing"
-        android:ellipsize="end"
-        android:maxLines="1"
         app:layout_constraintTop_toBottomOf="@id/content"
         app:layout_constraintStart_toEndOf="@id/like"
         tools:text = "34"/>
