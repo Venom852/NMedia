@@ -8,7 +8,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import ru.netology.nmedia.R
+import ru.netology.nmedia.adapter.PostAdapter
 import ru.netology.nmedia.databinding.ActivityMainBinding
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -22,39 +22,15 @@ class MainActivity : AppCompatActivity() {
         applyInset(binding.main)
 
         val viewModel: PostViewModel by viewModels()
-        viewModel.data.observe(this) {post ->
-            with(binding) {
-                like.setImageResource(
-                    if (post.likedByMe) {
-                        R.drawable.ic_liked_24
-                    } else {
-                        R.drawable.ic_like_24
-                    }
-                )
+        val adapter = PostAdapter({
+            viewModel.likeById(it.id)}) {
+            viewModel.toShareById(it.id)
+        }
 
-                toShare.setImageResource(
-                    if (post.toShare) {
-                        R.drawable.ic_shared_24
-                    } else {
-                        R.drawable.ic_to_share_24
-                    }
-                )
+        binding.main.adapter = adapter
 
-                like.setOnClickListener {
-                    viewModel.like()
-                }
-
-                toShare.setOnClickListener {
-                    viewModel.toShare()
-                }
-
-                author.text = post.author
-                content.text = post.content
-                published.text = post.published
-                numberLikes.text = CountCalculator.calculator(post.numberLikes)
-                shared.text = CountCalculator.calculator(post.shared)
-                numberViews.text = CountCalculator.calculator(post.numberViews)
-            }
+        viewModel.data.observe(this) {posts ->
+            adapter.submitList(posts)
         }
     }
 
