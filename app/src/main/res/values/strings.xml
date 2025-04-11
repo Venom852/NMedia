@@ -6,4 +6,12 @@
     <string name="like" translatable="false">like</string>
     <string name="toshare" translatable="false">toShare</string>
     <string name="views" translatable="false">views</string>
+    <string name="menu_remove">Remove</string>
+    <string name="post_text">Post_text</string>
+    <string name="save" translatable="false">save</string>
+    <string name="error_empty_content">Error, the text field cannot be empty</string>
+    <string name="menu_edit">Edit</string>
+    <string name="edit_message">Edit message:\n</string>
+    <string name="edit" translatable="false">edit</string>
+    <string name="cancel" translatable="false">cancel</string>
 </resources>
