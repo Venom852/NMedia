@@ -4,7 +4,7 @@
     <string name="avatar" translatable="false">avatar</string>
     <string name="menu" translatable="false">menu</string>
     <string name="like" translatable="false">like</string>
-    <string name="toshare" translatable="false">toShare</string>
+    <string name="toShare" translatable="false">toShare</string>
     <string name="views" translatable="false">views</string>
     <string name="menu_remove">Remove</string>
     <string name="post_text">Post_text</string>

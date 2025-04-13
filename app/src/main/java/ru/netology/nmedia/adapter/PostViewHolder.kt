@@ -16,27 +16,13 @@ class PostViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(post: Post) {
         with(binding) {
-            like.setImageResource(
-                if (post.likedByMe) {
-                    R.drawable.ic_liked_24
-                } else {
-                    R.drawable.ic_like_24
-                }
-            )
-
-            toShare.setImageResource(
-                if (post.toShare) {
-                    R.drawable.ic_shared_24
-                } else {
-                    R.drawable.ic_to_share_24
-                }
-            )
-
             author.text = post.author
             content.text = post.content
             published.text = post.published
-            numberLikes.text = CountCalculator.calculator(post.numberLikes)
-            shared.text = CountCalculator.calculator(post.shared)
+            like.isChecked = post.likedByMe
+            toShare.isChecked = post.toShare
+            like.text = CountCalculator.calculator(post.numberLikes)
+            toShare.text = CountCalculator.calculator(post.shared)
             numberViews.text = CountCalculator.calculator(post.numberViews)
             bindingActivity.group.visibility = View.GONE
 

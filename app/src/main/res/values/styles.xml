@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="App.Widget.LikeButton" parent="Widget.Material3.Button.ElevatedButton.Icon">
+        <item name="buttonTint">@color/color_like_selector</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+    </style>
+
+    <style name="App.Widget.ShareButton" parent="Widget.Material3.Button.ElevatedButton.Icon">
+        <item name="buttonTint">@color/color_share_selector</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+    </style>
+
+    <style name="App.Widget.MenuButton" parent="Widget.Material3.Button.Icon">
+        <item name="buttonTint">#000000</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+    </style>
+</resources>
