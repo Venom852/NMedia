@@ -23,7 +23,7 @@ class PostViewHolder(
             toShare.isChecked = post.toShare
             like.text = CountCalculator.calculator(post.numberLikes)
             toShare.text = CountCalculator.calculator(post.shared)
-            numberViews.text = CountCalculator.calculator(post.numberViews)
+            views.text = CountCalculator.calculator(post.numberViews)
             bindingActivity.group.visibility = View.GONE
 
             like.setOnClickListener {
