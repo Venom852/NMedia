@@ -7,4 +7,6 @@
     <string name="error_empty_content">Ошибка, поле текста не может быть пустым</string>
     <string name="menu_edit">Редактировать</string>
     <string name="edit_message">Редактировать сообщение:</string>
+    <string name="chooser_share_post">Поделиться публикацией</string>
+    <string name="previewTitle">Высокие горы и звуки природы.</string>
 </resources>

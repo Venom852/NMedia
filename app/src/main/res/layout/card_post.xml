@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/common_spacing"
-    tools:context=".view.MainActivity">
+    tools:context=".activity.MainActivity">
 
     <TextView
         android:id="@+id/author"
@@ -46,7 +46,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/menu"
-        app:iconPadding="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:icon="@drawable/ic_menu_24"
@@ -68,7 +67,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/headerBarrier"
+        app:layout_constraintTop_toBottomOf="@id/nameVideo"
         tools:text="@sample/posts.json/data/content" />
 
     <com.google.android.material.button.MaterialButton
@@ -116,4 +115,46 @@
         style="@style/App.Widget.MenuButton"
         tools:text="58" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <ImageView
+        android:id="@+id/videoContent"
+        android:autoLink="all"
+        android:layout_width="@dimen/_0dp"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/videoContent"
+        android:adjustViewBounds="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerBarrier"
+        app:srcCompat="@drawable/ic_nature_24"
+        tools:text="@sample/posts.json/data/content" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/play"
+        app:layout_constraintEnd_toEndOf="@id/videoContent"
+        app:layout_constraintTop_toTopOf="@id/videoContent"
+        app:layout_constraintBottom_toBottomOf="@id/videoContent"
+        app:layout_constraintStart_toStartOf="@id/videoContent"
+        app:icon="@drawable/ic_play_24"
+        app:iconTint="#000000"
+        style="@style/App.Widget.MenuButton" />
+
+    <TextView
+        android:id="@+id/nameVideo"
+        android:layout_width="@dimen/_0dp"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="@string/previewTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/videoContent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="videoContent,play,nameVideo" />
+
+ </androidx.constraintlayout.widget.ConstraintLayout>

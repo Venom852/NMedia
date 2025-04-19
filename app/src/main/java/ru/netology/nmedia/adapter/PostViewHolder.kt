@@ -1,16 +1,16 @@
 package ru.netology.nmedia.adapter
 
+import android.content.Intent
+import android.net.Uri
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
-import ru.netology.nmedia.databinding.ActivityMainBinding
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.view.CountCalculator
+import ru.netology.nmedia.util.CountCalculator
 
 class PostViewHolder(
-    private val bindingActivity: ActivityMainBinding,
     private val binding: CardPostBinding,
     private val onInteractionListener: OnInteractionListener
 ) : RecyclerView.ViewHolder(binding.root) {
@@ -24,7 +24,16 @@ class PostViewHolder(
             like.text = CountCalculator.calculator(post.numberLikes)
             toShare.text = CountCalculator.calculator(post.shared)
             views.text = CountCalculator.calculator(post.numberViews)
-            bindingActivity.group.visibility = View.GONE
+            binding.groupVideo.visibility = View.VISIBLE
+            binding.content.visibility = View.VISIBLE
+
+            if (post.video == null) {
+                binding.groupVideo.visibility = View.GONE
+            }
+
+            if (post.content == null) {
+                binding.content.visibility = View.GONE
+            }
 
             like.setOnClickListener {
                 onInteractionListener.onLike(post)
@@ -38,20 +47,30 @@ class PostViewHolder(
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.options_post)
                     setOnMenuItemClickListener { menuItem ->
-                        when(menuItem.itemId) {
+                        when (menuItem.itemId) {
                             R.id.remove -> {
                                 onInteractionListener.onRemove(post)
                                 true
                             }
+
                             R.id.edit -> {
-                                bindingActivity.group.visibility = View.VISIBLE
                                 onInteractionListener.onEdit(post)
                                 true
                             }
+
                             else -> false
                         }
                     }
                 }.show()
+            }
+
+            videoContent.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
+                it.context.startActivity(intent)
+            }
+            play.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
+                it.context.startActivity(intent)
             }
         }
     }

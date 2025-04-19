@@ -2,24 +2,35 @@ package ru.netology.nmedia.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.newFixedThreadPoolContext
 import ru.netology.nmedia.dto.Post
 
 class PostRepositoryInMemory : PostRepository {
-    private var nextId = 1L
-    private var posts = List(10) { index ->
-        val id = index + 1L
+    private var nextId = 3L
+    private var posts = listOf(
         Post(
-            id = id,
-            author = "Нетология. Университет интернет-профессий будущего",
-            content = "$id Привет, это новая Нетология! Когда-то Нетология начиналась с интенсивов по онлайн-маркетингу. Затем появились курсы по дизайну, разработке, аналитике и управлению. Мы растём сами и помогаем расти студентам: от новичков до уверенных профессионалов. Но самое важное остаётся с нами: мы верим, что в каждом уже есть сила, которая заставляет хотеть больше, целиться выше, бежать быстрее. Наша миссия — помочь встать на путь роста и начать цепочку перемен → http://netolo.gy/fyb",
-            published = "21 мая в 18:36",
-            likedByMe = false,
-            toShare = false,
-            numberLikes = 1099,
-            shared = 1099,
-            numberViews = 1100
-        )
-    }.reversed()
+        id = 1,
+        author = "Нетология. Университет интернет-профессий будущего",
+        video = null,
+        content = "Привет, это новая Нетология! Когда-то Нетология начиналась с интенсивов по онлайн-маркетингу. Затем появились курсы по дизайну, разработке, аналитике и управлению. Мы растём сами и помогаем расти студентам: от новичков до уверенных профессионалов. Но самое важное остаётся с нами: мы верим, что в каждом уже есть сила, которая заставляет хотеть больше, целиться выше, бежать быстрее. Наша миссия — помочь встать на путь роста и начать цепочку перемен → http://netolo.gy/fyb",
+        published = "21 мая в 18:36",
+        likedByMe = false,
+        toShare = false,
+        numberLikes = 1099,
+        shared = 1099,
+        numberViews = 1100
+    ),
+        Post(id = 2,
+        author = "Нетология. Университет интернет-профессий будущего",
+        video = "https://rutube.ru/video/8b07ab2281235edaec284f914a355817/",
+        content = null,
+        published = "21 мая в 18:36",
+        likedByMe = false,
+        toShare = false,
+        numberLikes = 1099,
+        shared = 1099,
+        numberViews = 1100
+    ))
 
     private val data = MutableLiveData(posts)
 

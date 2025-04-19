@@ -9,9 +9,10 @@ import ru.netology.nmedia.repository.PostRepositoryInMemory
 class PostViewModel : ViewModel() {
     val empty = Post(
         id = 0,
-        author = "",
+        author = "Me",
+        video = null,
         content = "",
-        published = "",
+        published = "New",
         likedByMe = false,
         toShare = false,
         numberLikes = 0,

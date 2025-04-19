@@ -1,4 +1,4 @@
-package ru.netology.nmedia.view
+package ru.netology.nmedia.util
 
 object CountCalculator {
     fun calculator(number: Long): String {

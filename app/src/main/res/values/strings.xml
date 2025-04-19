@@ -11,7 +11,12 @@
     <string name="save" translatable="false">save</string>
     <string name="error_empty_content">Error, the text field cannot be empty</string>
     <string name="menu_edit">Edit</string>
-    <string name="edit_message">Edit message:\n</string>
-    <string name="edit" translatable="false">edit</string>
-    <string name="cancel" translatable="false">cancel</string>
+    <string name="edit_message">Edit message:</string>
+    <string name="edit" translatable="false">Edit</string>
+    <string name="cancel" translatable="false">Cancel</string>
+    <string name="chooser_share_post">Share post</string>
+    <string name="ok" translatable="false">Ok</string>
+    <string name="videoContent" translatable="false">VideoContent</string>
+    <string name="play" translatable="false">play</string>
+    <string name="previewTitle">High mountains and the sounds of nature.</string>
 </resources>
