@@ -117,12 +117,13 @@
 
     <ImageView
         android:id="@+id/videoContent"
-        android:autoLink="all"
         android:layout_width="@dimen/_0dp"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/videoContent"
         android:adjustViewBounds="true"
+        android:autoLink="all"
+        android:contentDescription="@string/videoContent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerBarrier"
         app:srcCompat="@drawable/ic_nature_24"
