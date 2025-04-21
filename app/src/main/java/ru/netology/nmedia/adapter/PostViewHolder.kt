@@ -66,10 +66,12 @@ class PostViewHolder(
 
             videoContent.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
+                intent.resolveActivity(it.context.packageManager)
                 it.context.startActivity(intent)
             }
             play.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
+                intent.resolveActivity(it.context.packageManager)
                 it.context.startActivity(intent)
             }
         }
