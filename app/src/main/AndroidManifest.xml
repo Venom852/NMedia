@@ -13,17 +13,6 @@
         android:theme="@style/Theme.NMedia"
         tools:targetApi="31">
         <activity
-            android:name=".activity.VideoShowingActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <data android:mimeType="video/*"/>
-                <data android:scheme="https" />
-                <data android:host="*.rutube.ru" />
-                <category android:name="android.intent.category.BROWSABLE"/>
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".activity.NewPostActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
@@ -36,6 +25,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:mimeType="text/plain" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <data android:mimeType="video/*" />
+                <data android:scheme="https" />
+                <data android:host="*.rutube.ru" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
         <activity

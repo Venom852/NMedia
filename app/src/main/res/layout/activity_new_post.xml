@@ -5,16 +5,6 @@
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-<!--    <EditText-->
-<!--        android:id="@+id/content"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:layout_marginTop="@dimen/common_spacing"-->
-<!--        android:background="@android:color/transparent"-->
-<!--        android:gravity="top"-->
-<!--        android:hint="@string/post_text"-->
-<!--        android:padding="@dimen/_8dp" />-->
-
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomAppBar"
         android:layout_height="wrap_content"
