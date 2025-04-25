@@ -1,21 +1,30 @@
 package ru.netology.nmedia.adapter
 
 import android.content.Intent
-import android.content.Intent.CATEGORY_DEFAULT
 import android.content.pm.PackageManager.MATCH_ALL
 import android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AUTO
 import android.net.Uri
+import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
+import androidx.constraintlayout.widget.Group
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
+import com.google.gson.Gson
+import ru.netology.nmedia.fragment.FeedFragment
+import ru.netology.nmedia.fragment.NewPostFragment.Companion.NEW_POST_KEY
+import ru.netology.nmedia.fragment.NewPostFragment.Companion.textContentArg
+import ru.netology.nmedia.fragment.PostFragment.Companion.textPost
 import ru.netology.nmedia.util.CountCalculator
 
 class PostViewHolder(
     private val binding: CardPostBinding,
-    private val onInteractionListener: OnInteractionListener
+    private val onInteractionListener: OnInteractionListener,
+    private val gson: Gson = Gson()
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(post: Post) {
         with(binding) {
@@ -27,15 +36,15 @@ class PostViewHolder(
             like.text = CountCalculator.calculator(post.numberLikes)
             toShare.text = CountCalculator.calculator(post.shared)
             views.text = CountCalculator.calculator(post.numberViews)
-            binding.groupVideo.visibility = View.VISIBLE
-            binding.content.visibility = View.VISIBLE
+            groupVideo.visibility = View.VISIBLE
+            content.visibility = View.VISIBLE
 
             if (post.video == null) {
-                binding.groupVideo.visibility = View.GONE
+                groupVideo.visibility = View.GONE
             }
 
             if (post.content == null) {
-                binding.content.visibility = View.GONE
+                content.visibility = View.GONE
             }
 
             like.setOnClickListener {
@@ -44,6 +53,12 @@ class PostViewHolder(
 
             toShare.setOnClickListener {
                 onInteractionListener.onShare(post)
+            }
+
+            groupPost.setAllOnClickListener {
+                findNavController(it).navigate(R.id.action_feedFragment_to_postFragment2, Bundle().apply {
+                    textPost = gson.toJson(post)
+                })
             }
 
             menu.setOnClickListener {
@@ -80,6 +95,12 @@ class PostViewHolder(
                 intent.resolveActivity(it.context.packageManager)
                 it.context.startActivity(intent)
             }
+        }
+    }
+
+    private fun Group.setAllOnClickListener(listener: (View) -> Unit) {
+        referencedIds.forEach {
+            rootView.setOnClickListener(listener)
         }
     }
 }

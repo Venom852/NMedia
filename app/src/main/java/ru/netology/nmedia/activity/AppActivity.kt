@@ -7,9 +7,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.AppActivityBinding
+import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
 
 class AppActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +23,7 @@ class AppActivity : AppCompatActivity() {
 
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
-                return
+                return@let
             }
 
             val text = it.getStringExtra(Intent.EXTRA_TEXT)
@@ -34,7 +36,14 @@ class AppActivity : AppCompatActivity() {
                     .setAction(android.R.string.ok) {
                         finish()
                     }.show()
-                return
+                return@let
+            } else {
+                findNavController(R.id.fragmentContainer).navigate(
+                    R.id.action_feedFragment_to_newPostFragment,
+                    Bundle().apply {
+                        textArg = text
+                    }
+                )
             }
         }
     }

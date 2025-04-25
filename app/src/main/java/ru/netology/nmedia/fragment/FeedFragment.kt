@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostAdapter
@@ -17,9 +18,20 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
+import com.google.gson.Gson
+import ru.netology.nmedia.fragment.NewPostFragment.Companion.NEW_POST_KEY
+import ru.netology.nmedia.fragment.NewPostFragment.Companion.textContentArg
+import ru.netology.nmedia.fragment.PostFragment.Companion.LONG_KEY
+import ru.netology.nmedia.fragment.PostFragment.Companion.textPost
 
 class FeedFragment : Fragment() {
     @SuppressLint("SetTextI18n")
+
+    companion object{
+        private val gson = Gson()
+        private var postId: Long = 0
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -63,12 +75,34 @@ class FeedFragment : Fragment() {
 //                val intent = Intent(this@FeedFragment, NewPostActivity::class.java)
 //                intent.putExtra(Intent.EXTRA_TEXT, post.content)
 //                newPostLauncher.launch(intent)
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_newPostFragment,
+                    Bundle().apply {
+                        textContentArg = post.content
+                    }
+                )
             }
         })
+
+        arguments?.getLong(LONG_KEY).let {
+            if (it != null) {
+                postId = it
+            }
+            arguments?.remove(LONG_KEY)
+        }
 
         binding.main.adapter = adapter
 
         viewModel.data.observe(viewLifecycleOwner) { posts ->
+            posts.forEach{
+                if (it.id == postId) {
+                    postId = 0
+                    findNavController()
+                        .navigate(R.id.postFragment2, Bundle().apply {
+                            textPost = gson.toJson(it)
+                    })
+                }
+            }
             val newPost = posts.size > adapter.currentList.size && adapter.currentList.isNotEmpty()
             adapter.submitList(posts) {
                 if (newPost) {
@@ -81,8 +115,17 @@ class FeedFragment : Fragment() {
 //            val intent = Intent(this@FeedFragment, NewPostActivity::class.java)
 //            intent.putExtra(Intent.EXTRA_TEXT, "newPost")
 //            newPostLauncher.launch(intent)
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            findNavController().navigate(
+                R.id.action_feedFragment_to_newPostFragment,
+                Bundle().apply {
+                    textContentArg = NEW_POST_KEY
+                }
+            )
         }
+
+//        bindingCardPost.content.setOnClickListener {
+//            findNavController().navigate(R.id.action_feedFragment_to_postFragment2)
+//        }
         return binding.root
     }
 
