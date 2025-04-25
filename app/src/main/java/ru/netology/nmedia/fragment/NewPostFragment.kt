@@ -26,16 +26,6 @@ class NewPostFragment : Fragment() {
         val binding = FragmentNewPostBinding.inflate(layoutInflater, container, false)
         val viewModel: PostViewModel by activityViewModels()
 
-//        intent?.let {
-//            val text = it.getStringExtra(Intent.EXTRA_TEXT)
-//            if (text == "newPost") {
-//                binding.group.visibility = View.GONE
-//            } else {
-//                binding.content.setText(text)
-//                binding.cancelEdit.text = binding.content.text
-//            }
-//        }
-
         arguments?.textArg?.let {
             binding.content.setText(it)
             arguments?.textArg = null
@@ -58,11 +48,6 @@ class NewPostFragment : Fragment() {
                 val content = binding.content.text.toString()
                 viewModel.saveContent(content)
                 findNavController().navigateUp()
-//                if (content == null) {
-//                    viewModel.edited.value = viewModel.empty
-//                } else {
-//                    viewModel.saveContent(content)
-//                }
             }
             viewModel.edited.value = viewModel.empty
             findNavController().navigateUp()

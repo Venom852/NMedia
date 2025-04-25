@@ -9,15 +9,11 @@ import android.view.View
 import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.Group
 import androidx.navigation.Navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 import com.google.gson.Gson
-import ru.netology.nmedia.fragment.FeedFragment
-import ru.netology.nmedia.fragment.NewPostFragment.Companion.NEW_POST_KEY
-import ru.netology.nmedia.fragment.NewPostFragment.Companion.textContentArg
 import ru.netology.nmedia.fragment.PostFragment.Companion.textPost
 import ru.netology.nmedia.util.CountCalculator
 
