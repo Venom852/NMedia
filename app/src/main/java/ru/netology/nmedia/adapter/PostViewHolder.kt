@@ -2,7 +2,6 @@ package ru.netology.nmedia.adapter
 
 import android.content.Intent
 import android.content.pm.PackageManager.MATCH_ALL
-import android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AUTO
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -82,13 +81,14 @@ class PostViewHolder(
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
                 println(intent.resolveActivity(it.context.packageManager))
                 println(intent.resolveActivityInfo(it.context.packageManager, MATCH_ALL))
-                println(it.context.packageManager.queryIntentActivities(intent, MATCH_DIRECT_BOOT_AUTO))
                 println(it.context.packageManager.queryIntentActivities(intent, MATCH_ALL))
                 it.context.startActivity(intent)
             }
             play.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
-                intent.resolveActivity(it.context.packageManager)
+                println(intent.resolveActivity(it.context.packageManager))
+                println(intent.resolveActivityInfo(it.context.packageManager, MATCH_ALL))
+                println(it.context.packageManager.queryIntentActivities(intent, MATCH_ALL))
                 it.context.startActivity(intent)
             }
         }

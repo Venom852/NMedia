@@ -41,6 +41,7 @@
         </activity>
     </application>
     <queries>
+        <package android:name="ru.rutube.app" />
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="*" />
