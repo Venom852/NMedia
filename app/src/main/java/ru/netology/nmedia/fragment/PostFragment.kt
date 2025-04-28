@@ -1,6 +1,5 @@
 package ru.netology.nmedia.fragment
 
-import LongArg
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -23,7 +22,7 @@ import ru.netology.nmedia.util.StringArg
 
 class PostFragment : Fragment() {
 
-    companion object{
+    companion object {
         private var post = Post(
             id = 0,
             author = "Me",
@@ -34,11 +33,11 @@ class PostFragment : Fragment() {
             toShare = false,
             numberLikes = 0,
             shared = 0,
-            numberViews = 0)
+            numberViews = 0
+        )
         private val gson = Gson()
-        const val LONG_KEY = "longKey"
+        private var postId: Long = 0
         var Bundle.textPost by StringArg
-//        var Bundle.idPost by LongArg
     }
 
     override fun onCreateView(
@@ -55,7 +54,69 @@ class PostFragment : Fragment() {
             post = gson.fromJson(it, Post::class.java)
             arguments?.textPost = null
         }
-        with(binding){
+        with(binding) {
+            setValues(binding, post)
+
+            like.setOnClickListener {
+                postId = post.id
+                viewModel.likeById(post.id)
+            }
+
+            toShare.setOnClickListener {
+                postId = post.id
+                viewModel.toShareById(post.id)
+                val intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, post.content)
+                }
+                val chooser = Intent.createChooser(intent, getString(R.string.chooser_share_post))
+                startActivity(chooser)
+            }
+
+            menu.setOnClickListener {
+                PopupMenu(it.context, it).apply {
+                    inflate(R.menu.options_post)
+                    setOnMenuItemClickListener { menuItem ->
+                        when (menuItem.itemId) {
+                            R.id.remove -> {
+                                viewModel.removeById(post.id)
+                                findNavController().navigateUp()
+                                true
+                            }
+
+                            R.id.edit -> {
+                                postId = post.id
+                                viewModel.editById(post)
+                                findNavController().navigate(
+                                    R.id.action_postFragment2_to_newPostFragment,
+                                    Bundle().apply {
+                                        textContentArg = binding.content.text.toString()
+                                    }
+                                )
+                                true
+                            }
+
+                            else -> false
+                        }
+                    }
+                }.show()
+            }
+
+            viewModel.data.observe(viewLifecycleOwner) {
+                it.forEach { post ->
+                    if (post.id == postId) {
+                        postId = 0
+                        setValues(binding, post)
+                    }
+                }
+            }
+        }
+        return binding.root
+    }
+
+    private fun setValues(binding: FragmentPostBinding, post: Post) {
+        with(binding) {
             author.text = post.author
             content.text = post.content
             published.text = post.published
@@ -74,61 +135,7 @@ class PostFragment : Fragment() {
             if (post.content == null) {
                 content.visibility = View.GONE
             }
-
-            like.setOnClickListener {
-                viewModel.likeById(post.id)
-                findNavController()
-                    .navigate(R.id.feedFragment, Bundle().apply {
-                        putLong(LONG_KEY, post.id)
-                    }
-                )
-            }
-
-            toShare.setOnClickListener {
-                viewModel.toShareById(post.id)
-                val intent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, post.content)
-                }
-                val chooser = Intent.createChooser(intent, getString(R.string.chooser_share_post))
-                startActivity(chooser)
-                findNavController()
-                    .navigate(R.id.feedFragment, Bundle().apply {
-                        putLong(LONG_KEY, post.id)
-                    }
-                )
-            }
-
-            menu.setOnClickListener {
-                PopupMenu(it.context, it).apply {
-                    inflate(R.menu.options_post)
-                    setOnMenuItemClickListener { menuItem ->
-                        when (menuItem.itemId) {
-                            R.id.remove -> {
-                                viewModel.removeById(post.id)
-                                findNavController().navigateUp()
-                                true
-                            }
-
-                            R.id.edit -> {
-                                viewModel.editById(post)
-                                findNavController().navigate(
-                                    R.id.action_postFragment2_to_newPostFragment,
-                                    Bundle().apply {
-                                        textContentArg = post.content
-                                    }
-                                )
-                                true
-                            }
-
-                            else -> false
-                        }
-                    }
-                }.show()
-            }
         }
-        return binding.root
     }
 
     private fun applyInset(main: View) {

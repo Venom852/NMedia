@@ -5,12 +5,12 @@
     android:id="@+id/postFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/common_spacing"
-    tools:context=".fragment.FeedFragment">
+    tools:context=".fragment.PostFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="@dimen/common_spacing">
 
         <TextView
             android:id="@+id/author"

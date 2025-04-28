@@ -16,7 +16,7 @@ class AppDb private constructor(db: SQLiteDatabase) {
         fun getInstance(context: Context): AppDb {
             return instance ?: synchronized(this) {
                 instance ?: AppDb(
-                    buildDatabase(context, arrayOf(PostDaoImpl.DDL))
+                    buildDatabase(context, arrayOf(PostDaoImpl.DDL, PostDaoImpl.DDL_DRAFT))
                 ).also { instance = it }
             }
         }

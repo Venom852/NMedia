@@ -3,7 +3,6 @@ package ru.netology.nmedia.dao
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import android.provider.Telephony.Mms.Draft
 import ru.netology.nmedia.dto.Post
 
 class PostDaoImpl(private val db: SQLiteDatabase) : PostDao {
@@ -21,7 +20,8 @@ class PostDaoImpl(private val db: SQLiteDatabase) : PostDao {
             ${PostColumns.COLUMN_SHARED} INTEGER NOT NULL DEFAULT 0,
             ${PostColumns.COLUMN_NUMBER_VIEWS} INTEGER NOT NULL DEFAULT 0 
         );
-        
+        """.trimIndent()
+        val DDL_DRAFT = """
         CREATE TABLE ${DraftColumns.TABLE} (
             ${DraftColumns.COLUMN_CONTENT_DRAFT} TEXT UNIQUE
         );
@@ -187,8 +187,10 @@ class PostDaoImpl(private val db: SQLiteDatabase) : PostDao {
             null,
             null
         ).use {
-            it.moveToNext()
-            return it.getString(it.getColumnIndexOrThrow(DraftColumns.COLUMN_CONTENT_DRAFT))
+            if (it.moveToFirst()) {
+                return it.getString(it.getColumnIndexOrThrow(DraftColumns.COLUMN_CONTENT_DRAFT))
+            }
         }
+        return null
     }
 }

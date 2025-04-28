@@ -1,17 +1,14 @@
 package ru.netology.nmedia.fragment
 
 import android.os.Bundle
+import android.text.TextUtils.isEmpty
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
-import androidx.core.content.ContentProviderCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import ru.netology.nmedia.activity.AppActivity
-import ru.netology.nmedia.dao.PostDaoImpl
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.util.StringArg
@@ -20,6 +17,7 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 class NewPostFragment : Fragment() {
     companion object {
         const val NEW_POST_KEY = "newPost"
+        private var editing = false
         var Bundle.textArg by StringArg
         var Bundle.textContentArg by StringArg
     }
@@ -49,19 +47,19 @@ class NewPostFragment : Fragment() {
             } else {
                 binding.content.setText(text)
                 binding.cancelEdit.text = binding.content.text
+                editing = true
             }
             arguments?.textContentArg = null
         }
 
         binding.content.requestFocus()
-        binding.ok.setOnClickListener{
+        binding.ok.setOnClickListener {
             if (!binding.content.text.isNullOrBlank()) {
                 val content = binding.content.text.toString()
                 viewModel.saveContent(content)
                 findNavController().navigateUp()
             }
             viewModel.edited.value = viewModel.empty
-            findNavController().navigateUp()
         }
 
         binding.cancel.setOnClickListener {
@@ -70,7 +68,10 @@ class NewPostFragment : Fragment() {
         }
 
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
-            dao.saveDraft(binding.content.text.toString())
+            if (!isEmpty(binding.content.text.toString()) && !editing) {
+                dao.saveDraft(binding.content.text.toString())
+            }
+            editing = false
             findNavController().navigateUp()
         }
 
