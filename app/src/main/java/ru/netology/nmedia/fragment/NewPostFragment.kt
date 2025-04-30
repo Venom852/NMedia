@@ -57,9 +57,9 @@ class NewPostFragment : Fragment() {
             if (!binding.content.text.isNullOrBlank()) {
                 val content = binding.content.text.toString()
                 viewModel.saveContent(content)
-                findNavController().navigateUp()
             }
             viewModel.edited.value = viewModel.empty
+            findNavController().navigateUp()
         }
 
         binding.cancel.setOnClickListener {
@@ -72,6 +72,7 @@ class NewPostFragment : Fragment() {
                 dao.saveDraft(binding.content.text.toString())
             }
             editing = false
+            viewModel.edited.value = viewModel.empty
             findNavController().navigateUp()
         }
 

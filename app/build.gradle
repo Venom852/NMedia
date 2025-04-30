@@ -46,7 +46,7 @@ dependencies {
     implementation libs.fragment
     implementation libs.ui
     implementation libs.room
-    libs.kapt
+    kapt libs.kapt
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
