@@ -52,18 +52,17 @@ class PostFragment : Fragment() {
 
         arguments?.textPost?.let {
             post = gson.fromJson(it, Post::class.java)
+            postId = post.id
             arguments?.textPost = null
         }
         with(binding) {
             setValues(binding, post)
 
             like.setOnClickListener {
-                postId = post.id
                 viewModel.likeById(post.id)
             }
 
             toShare.setOnClickListener {
-                postId = post.id
                 viewModel.toShareById(post.id)
                 val intent = Intent().apply {
                     action = Intent.ACTION_SEND
@@ -86,12 +85,11 @@ class PostFragment : Fragment() {
                             }
 
                             R.id.edit -> {
-                                postId = post.id
                                 viewModel.editById(post)
                                 findNavController().navigate(
                                     R.id.action_postFragment2_to_newPostFragment,
                                     Bundle().apply {
-                                        textContentArg = binding.content.text.toString()
+                                        textContentArg = post.content
                                     }
                                 )
                                 true
@@ -106,7 +104,7 @@ class PostFragment : Fragment() {
             viewModel.data.observe(viewLifecycleOwner) {
                 it.forEach { post ->
                     if (post.id == postId) {
-                        postId = 0
+                        Companion.post = post
                         setValues(binding, post)
                     }
                 }

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -27,6 +28,7 @@ android {
         }
     }
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
@@ -46,6 +48,10 @@ dependencies {
     implementation libs.fragment
     implementation libs.ui
     implementation libs.room
+    implementation libs.firebase.messaging
+    implementation platform(libs.firebase.bom)
+    implementation libs.play.services.base
+    coreLibraryDesugaring libs.desugar.jdk.libs
     kapt libs.kapt
 
     testImplementation libs.junit
