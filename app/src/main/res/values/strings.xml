@@ -23,6 +23,6 @@
     <string name="notification_user_liked">User %1$s liked %2$s\'s post</string>
     <string name="channel_remote_name">Server notifications</string>
     <string name="channel_remote_description">Notifications from remote server</string>
-    <string name="notification_creating_new_post">User %1$s posted a new post \n with name %2$s: </string>
+    <string name="notification_creating_new_post">User %1$s posted a new post with name %2$s: </string>
     <string name="notification_text">The Netology online School is a great place to gain new knowledge. Among its advantages are the following: a variety of courses, a logical course structure, curatorial support, access to relevant tools and technologies, the ability to combine training with work, and a career development center.</string>
 </resources>

@@ -13,6 +13,6 @@
     <string name="notification_user_liked">%1$s поставил лайк посту %2$s</string>
     <string name="channel_remote_name">Уведомления с сервера</string>
     <string name="channel_remote_description">Уведомления с удалённого сервера</string>
-    <string name="notification_creating_new_post">Пользователь %1$s опубликовал новый пост \n с названием %2$s: </string>
+    <string name="notification_creating_new_post">Пользователь %1$s опубликовал новый пост с названием %2$s: </string>
     <string name="notification_text">Онлайн - школа Нетология отличное место для получения новых знаний. Среди её плюсов можно выделить следующие: разнообразие курсов, логичная структура курсов, поддержка кураторов, доступ к актуальным инструментам и технологиям, возможность совмещать обучение с работой, центр развития карьеры.</string>
 </resources>
