@@ -68,6 +68,7 @@ class AppActivity : AppCompatActivity() {
         if (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
             return
         }
+
         requestPermissions(arrayOf(permission), 1)
     }
 
