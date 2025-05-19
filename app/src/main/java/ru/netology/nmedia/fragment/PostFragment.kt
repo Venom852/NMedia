@@ -102,7 +102,7 @@ class PostFragment : Fragment() {
             }
 
             viewModel.data.observe(viewLifecycleOwner) {
-                it.forEach { post ->
+                it.posts.forEach { post ->
                     if (post.id == postId) {
                         Companion.post = post
                         setValues(binding, post)

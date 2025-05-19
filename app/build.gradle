@@ -25,6 +25,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            manifestPlaceholders.usesCleartextTraffic = false
+        }
+
+        debug {
+            manifestPlaceholders.usesCleartextTraffic = true
         }
     }
     compileOptions {
@@ -51,6 +56,9 @@ dependencies {
     implementation libs.firebase.messaging
     implementation platform(libs.firebase.bom)
     implementation libs.play.services.base
+    implementation libs.okhttp
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
     coreLibraryDesugaring libs.desugar.jdk.libs
     kapt libs.kapt
 
