@@ -28,10 +28,10 @@ class PostFragment : Fragment() {
             author = "Me",
             video = null,
             content = "",
-            published = "New",
+            published = 0,
             likedByMe = false,
             toShare = false,
-            numberLikes = 0,
+            likes = 0,
             shared = 0,
             numberViews = 0
         )
@@ -117,10 +117,10 @@ class PostFragment : Fragment() {
         with(binding) {
             author.text = post.author
             content.text = post.content
-            published.text = post.published
+            published.text = post.published.toString()
             like.isChecked = post.likedByMe
             toShare.isChecked = post.toShare
-            like.text = CountCalculator.calculator(post.numberLikes)
+            like.text = CountCalculator.calculator(post.likes)
             toShare.text = CountCalculator.calculator(post.shared)
             views.text = CountCalculator.calculator(post.numberViews)
             groupVideo.visibility = View.VISIBLE

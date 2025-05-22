@@ -18,10 +18,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         author = "Me",
         video = null,
         content = "",
-        published = "New",
+        published = 0,
         likedByMe = false,
         toShare = false,
-        numberLikes = 0,
+        likes = 0,
         shared = 0,
         numberViews = 0
     )
@@ -52,8 +52,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(id: Long) = thread {
-        val post = repository.likeById(id)
-        _data.postValue(_data.value?.copy(posts = _data.value?.posts.orEmpty().map { if (it.id != post.id) it else post }))
+        var postLikedByMe = false
+        _data.value?.posts.orEmpty().forEach { if (it.id == id) postLikedByMe = it.likedByMe }
+        try {
+            val post = repository.likeById(id, postLikedByMe)
+            _data.postValue(_data.value?.copy(posts = _data.value?.posts.orEmpty().map { if (it.id != post.id) it else post }))
+        } catch (e: IOException) {
+            _data.postValue(FeedModel(error = true))
+        }
     }
     fun toShareById(id: Long) = thread { repository.toShareById(id) }
     fun removeById(id: Long) {

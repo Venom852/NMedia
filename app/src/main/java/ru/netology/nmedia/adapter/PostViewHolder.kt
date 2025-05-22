@@ -25,10 +25,10 @@ class PostViewHolder(
         with(binding) {
             author.text = post.author
             content.text = post.content
-            published.text = post.published
+            published.text = post.published.toString()
             like.isChecked = post.likedByMe
             toShare.isChecked = post.toShare
-            like.text = CountCalculator.calculator(post.numberLikes)
+            like.text = CountCalculator.calculator(post.likes)
             toShare.text = CountCalculator.calculator(post.shared)
             views.text = CountCalculator.calculator(post.numberViews)
             groupVideo.visibility = View.VISIBLE
