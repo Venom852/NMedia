@@ -88,7 +88,8 @@ class FeedFragment : Fragment() {
             )
         }
 
-        OnRefreshListener {
+        binding.srl.setOnRefreshListener {
+            binding.srl.isRefreshing = false
             viewModel.loadPosts()
         }
         return binding.root
