@@ -34,17 +34,6 @@ class PostRepositoryImpl : PostRepository {
     }
 
     override fun likeById(id: Long, postLikedByMe: Boolean) : Post {
-//        var request: Request = Request.Builder()
-//            .url("${BASE_URL}/api/slow/posts/${id}")
-//            .build()
-//
-//        val post = client.newCall(request)
-//            .execute()
-//            .let { it.body?.string() ?: throw RuntimeException("body is null") }
-//            .let {
-//                gson.fromJson(it, Post::class.java)
-//            }
-
         val request = if (!postLikedByMe) {
             Request.Builder()
                 .post(EMPTY_REQUEST)
