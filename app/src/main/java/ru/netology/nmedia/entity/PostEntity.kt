@@ -11,7 +11,7 @@ data class PostEntity(
     val author: String,
     val video: String?,
     val content: String?,
-    val published: String,
+    val published: Long,
     val likedByMe: Boolean,
     val toShare: Boolean,
     val numberLikes: Long,
@@ -40,7 +40,7 @@ data class PostEntity(
             post.published,
             post.likedByMe,
             post.toShare,
-            post.numberLikes,
+            post.likes,
             post.shared,
             post.numberViews
         )

@@ -48,7 +48,7 @@ class FeedFragment : Fragment() {
                 }
                 val chooser = Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(chooser)
-                viewModel.toShareById(post.id)
+//                viewModel.toShareById(post.id)
             }
 
             override fun onRemove(post: Post) {
@@ -88,7 +88,8 @@ class FeedFragment : Fragment() {
             )
         }
 
-        OnRefreshListener {
+        binding.srl.setOnRefreshListener {
+            binding.srl.isRefreshing = false
             viewModel.loadPosts()
         }
         return binding.root
