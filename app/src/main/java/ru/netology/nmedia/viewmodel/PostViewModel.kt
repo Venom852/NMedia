@@ -101,7 +101,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     nextId = (posts.maxOfOrNull { it.id } ?: 1)
                     posts = if (post.id > nextId) {
                         nextId = post.id
-                            listOf(post) + posts
+                        listOf(post) + posts
                     } else {
                         posts.map {
                             if (it.id != post.id) it else post.copy(content = post.content)
