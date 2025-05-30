@@ -38,8 +38,7 @@ class PostRepositoryImpl(private val application: Application) : PostRepository 
 //    private var index = 0
 
     companion object {
-        private const val BASE_URL = "http://192.168.1.84:9999"
-//        private const val BASE_URL = "http://10.0.2.2:9999"
+        private const val BASE_URL = "http://10.0.2.2:9999"
         private val jsonType = "application/json".toMediaType()
     }
 

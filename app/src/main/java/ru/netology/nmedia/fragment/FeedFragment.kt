@@ -81,8 +81,7 @@ class FeedFragment : Fragment() {
             state.posts.forEach { post ->
                 run urls@ {
                     urls.forEach {
-                        val url = "http://192.168.1.84:9999/avatars/${urls[index++]}"
-//            val url = "http://10.0.2.2:9999/avatars/${urls[index++]}"
+                        val url = "http://10.0.2.2:9999/avatars/${urls[index++]}"
                         if (index == urls.size) {
                             index = 0
                         }
