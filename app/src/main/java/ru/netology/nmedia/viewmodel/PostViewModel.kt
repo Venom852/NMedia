@@ -1,6 +1,7 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,22 +11,26 @@ import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 import kotlin.collections.orEmpty
+import kotlin.concurrent.thread
+import kotlin.getValue
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     val empty = Post(
         id = 0,
         author = "Me",
+        authorAvatar = null,
         video = null,
         content = "",
         published = 0,
         likedByMe = false,
         toShare = false,
         likes = 0,
+        attachment = null,
         shared = 0,
         numberViews = 0
     )
 
-    private val repository: PostRepository = PostRepositoryImpl()
+    private val repository: PostRepository = PostRepositoryImpl(application)
     private val _data = MutableLiveData(FeedModel())
     val data: LiveData<FeedModel>
         get() = _data
@@ -51,6 +56,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _data.postValue(FeedModel(error = true))
             }
         })
+
+    }
+
+    fun loadAvatars(posts: List<Post>) {
+        repository.getAllAvatars(posts)
     }
 
     fun likeById(id: Long) {
@@ -77,7 +87,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    fun toShareById(id: Long) = repository.toShareById(id)
+    fun toShareById(id: Long) = thread { repository.toShareById(id) }
     fun removeById(id: Long) {
         val oldPosts = _data.value?.posts.orEmpty()
         _data.postValue(
@@ -101,7 +111,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     nextId = (posts.maxOfOrNull { it.id } ?: 1)
                     posts = if (post.id > nextId) {
                         nextId = post.id
-                            listOf(post) + posts
+                        listOf(post) + posts
                     } else {
                         posts.map {
                             if (it.id != post.id) it else post.copy(content = post.content)

@@ -12,11 +12,12 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
+import com.bumptech.glide.Glide
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostAdapter
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.adapter.OnInteractionListener
+import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.NEW_POST_KEY
@@ -24,6 +25,8 @@ import ru.netology.nmedia.fragment.NewPostFragment.Companion.textContentArg
 
 class FeedFragment : Fragment() {
     @SuppressLint("SetTextI18n")
+    private val urls = listOf("netology.jpg", "sber.jpg", "tcs.jpg", "404.png")
+    private var index = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,6 +35,7 @@ class FeedFragment : Fragment() {
     ): View {
 //        enableEdgeToEdge()
         val binding = FragmentFeedBinding.inflate(layoutInflater, container, false)
+        val bindingCardPost = CardPostBinding.inflate(layoutInflater, container, false)
         applyInset(binding.main)
 
         val viewModel: PostViewModel by activityViewModels()
@@ -48,7 +52,7 @@ class FeedFragment : Fragment() {
                 }
                 val chooser = Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(chooser)
-//                viewModel.toShareById(post.id)
+                viewModel.toShareById(post.id)
             }
 
             override fun onRemove(post: Post) {
@@ -73,13 +77,34 @@ class FeedFragment : Fragment() {
             binding.progress.isVisible = state.loading
             binding.errorGroup.isVisible = state.error
             binding.emptyText.isVisible = state.empty
+
+            state.posts.forEach { post ->
+                run urls@ {
+                    urls.forEach {
+                        val url = "http://192.168.1.84:9999/avatars/${urls[index++]}"
+//            val url = "http://10.0.2.2:9999/avatars/${urls[index++]}"
+                        if (index == urls.size) {
+                            index = 0
+                        }
+
+                        if (post.authorAvatar == it) {
+                            Glide.with(bindingCardPost.avatar)
+                                .load(url)
+                                .error(R.drawable.ic_error_24)
+                                .timeout(10_000)
+                                .into(bindingCardPost.avatar)
+                            return@urls
+                        }
+                    }
+                }
+            }
         }
 
         binding.retryButton.setOnClickListener {
             viewModel.loadPosts()
         }
 
-        binding.add.setOnClickListener{
+        binding.add.setOnClickListener {
             findNavController().navigate(
                 R.id.action_feedFragment_to_newPostFragment,
                 Bundle().apply {
@@ -92,6 +117,7 @@ class FeedFragment : Fragment() {
             binding.srl.isRefreshing = false
             viewModel.loadPosts()
         }
+
         return binding.root
     }
 

@@ -26,12 +26,14 @@ class PostFragment : Fragment() {
         private var post = Post(
             id = 0,
             author = "Me",
+            authorAvatar = null,
             video = null,
             content = "",
             published = 0,
             likedByMe = false,
             toShare = false,
             likes = 0,
+            attachment = null,
             shared = 0,
             numberViews = 0
         )

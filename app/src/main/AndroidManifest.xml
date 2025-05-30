@@ -15,7 +15,8 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="${usesCleartextTraffic}"
         android:theme="@style/Theme.NMedia"
-        tools:targetApi="31">
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="33">
         <activity
             android:name=".activity.AppActivity"
             android:exported="true">
