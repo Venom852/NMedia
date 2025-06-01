@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
-//import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
@@ -30,7 +30,7 @@ class NewPostFragment : Fragment() {
     ): View {
         val binding = FragmentNewPostBinding.inflate(layoutInflater, container, false)
         val viewModel: PostViewModel by activityViewModels()
-//        val dao = AppDb.getInstance(requireContext()).postDao
+        val dao = AppDb.getInstance(requireContext()).postDao
 
         arguments?.textArg?.let {
             binding.content.setText(it)
@@ -41,10 +41,10 @@ class NewPostFragment : Fragment() {
             val text = it
             if (text == NEW_POST_KEY) {
                 binding.group.visibility = View.GONE
-//                if (dao.getDraft() != null) {
-//                    binding.content.setText(dao.getDraft())
-//                    dao.removeDraft()
-//                }
+                if (dao.getDraft() != null) {
+                    binding.content.setText(dao.getDraft())
+                    dao.removeDraft()
+                }
             } else {
                 binding.content.setText(text)
                 binding.cancelEdit.text = binding.content.text
@@ -74,7 +74,7 @@ class NewPostFragment : Fragment() {
 
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
             if (!isEmpty(binding.content.text.toString()) && !editing) {
-//                dao.saveDraft(binding.content.text.toString())
+                dao.saveDraft(binding.content.text.toString())
             }
             editing = false
             viewModel.edited.value = viewModel.empty

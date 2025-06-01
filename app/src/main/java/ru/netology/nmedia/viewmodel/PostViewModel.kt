@@ -1,7 +1,6 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,13 +11,12 @@ import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 import kotlin.collections.orEmpty
 import kotlin.concurrent.thread
-import kotlin.getValue
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     val empty = Post(
         id = 0,
         author = "Me",
-        authorAvatar = null,
+        authorAvatar = "netology",
         video = null,
         content = "",
         published = 0,
@@ -30,7 +28,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         numberViews = 0
     )
 
-    private val repository: PostRepository = PostRepositoryImpl(application)
+    private val repository: PostRepository = PostRepositoryImpl()
     private val _data = MutableLiveData(FeedModel())
     val data: LiveData<FeedModel>
         get() = _data
@@ -57,10 +55,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
         })
 
-    }
-
-    fun loadAvatars(posts: List<Post>) {
-        repository.getAllAvatars(posts)
     }
 
     fun likeById(id: Long) {

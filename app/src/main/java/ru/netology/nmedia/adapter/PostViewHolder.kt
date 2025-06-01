@@ -9,18 +9,22 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.Group
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.google.gson.Gson
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
-import com.google.gson.Gson
 import ru.netology.nmedia.fragment.PostFragment.Companion.textPost
 import ru.netology.nmedia.util.CountCalculator
+
 
 class PostViewHolder(
     private val binding: CardPostBinding,
     private val onInteractionListener: OnInteractionListener,
     private val gson: Gson = Gson()
 ) : RecyclerView.ViewHolder(binding.root) {
+    private val urls = listOf("netology.jpg", "sber.jpg", "tcs.jpg", "404.png")
     fun bind(post: Post) {
         with(binding) {
             author.text = post.author
@@ -33,6 +37,21 @@ class PostViewHolder(
             views.text = CountCalculator.calculator(post.numberViews)
             groupVideo.visibility = View.VISIBLE
             content.visibility = View.VISIBLE
+            imageContent.visibility = View.VISIBLE
+
+            val url = "http://10.0.2.2:9999/avatars/${post.authorAvatar}"
+            val urlAttachment = "http://10.0.2.2:9999/images/${post.attachment?.url}"
+            val options = RequestOptions()
+
+            if (post.attachment == null) {
+                imageContent.visibility = View.GONE
+            } else {
+                Glide.with(binding.imageContent)
+                    .load(urlAttachment)
+                    .error(R.drawable.ic_error_24)
+                    .timeout(10_000)
+                    .into(binding.imageContent)
+            }
 
             if (post.video == null) {
                 groupVideo.visibility = View.GONE
@@ -40,6 +59,17 @@ class PostViewHolder(
 
             if (post.content == null) {
                 content.visibility = View.GONE
+            }
+
+            if (post.authorAvatar != "netology") {
+                Glide.with(binding.avatar)
+                    .load(url)
+                    .error(R.drawable.ic_error_24)
+                    .timeout(10_000)
+                    .apply(options.circleCrop())
+                    .into(binding.avatar)
+            } else {
+                avatar.setImageResource(R.drawable.ic_netology)
             }
 
             like.setOnClickListener {
@@ -51,9 +81,11 @@ class PostViewHolder(
             }
 
             groupPost.setAllOnClickListener {
-                findNavController(it).navigate(R.id.action_feedFragment_to_postFragment2, Bundle().apply {
-                    textPost = gson.toJson(post)
-                })
+                findNavController(it).navigate(
+                    R.id.action_feedFragment_to_postFragment2,
+                    Bundle().apply {
+                        textPost = gson.toJson(post)
+                    })
             }
 
             menu.setOnClickListener {
