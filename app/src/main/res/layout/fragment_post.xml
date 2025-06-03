@@ -72,7 +72,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/nameVideo"
-            tools:text="@sample/posts.json/data/content" />
+            tools:text="Образец" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/like"
@@ -86,7 +86,7 @@
             app:iconPadding="4dp"
             app:iconTint="@color/color_like_selector"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/content"
+            app:layout_constraintTop_toBottomOf="@+id/imageContent"
             tools:text="34" />
 
         <com.google.android.material.button.MaterialButton
@@ -102,7 +102,7 @@
             app:iconPadding="4dp"
             app:iconTint="@color/color_share_selector"
             app:layout_constraintStart_toEndOf="@id/like"
-            app:layout_constraintTop_toBottomOf="@+id/content"
+            app:layout_constraintTop_toBottomOf="@+id/imageContent"
             tools:text="13" />
 
         <com.google.android.material.button.MaterialButton
@@ -116,7 +116,7 @@
             app:iconPadding="4dp"
             app:iconTint="#000000"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/content"
+            app:layout_constraintTop_toBottomOf="@+id/imageContent"
             tools:text="58" />
 
         <ImageView
@@ -155,6 +155,19 @@
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/videoContent" />
+
+        <ImageView
+            android:id="@+id/imageContent"
+            android:layout_width="@dimen/_0dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:autoLink="all"
+            android:visibility="visible"
+            android:contentDescription="@string/ImageContent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/content"
+            tools:srcCompat="@drawable/ic_nature_24" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/groupVideo"

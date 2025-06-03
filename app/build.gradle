@@ -57,7 +57,8 @@ dependencies {
     implementation platform(libs.firebase.bom)
     implementation libs.play.services.base
     implementation libs.okhttp
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation libs.androidx.swiperefreshlayout
+    implementation libs.glide
 
     coreLibraryDesugaring libs.desugar.jdk.libs
     kapt libs.kapt

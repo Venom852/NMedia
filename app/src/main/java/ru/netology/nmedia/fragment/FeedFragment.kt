@@ -12,7 +12,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostAdapter
 import ru.netology.nmedia.viewmodel.PostViewModel
@@ -24,7 +23,6 @@ import ru.netology.nmedia.fragment.NewPostFragment.Companion.textContentArg
 
 class FeedFragment : Fragment() {
     @SuppressLint("SetTextI18n")
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -79,7 +77,7 @@ class FeedFragment : Fragment() {
             viewModel.loadPosts()
         }
 
-        binding.add.setOnClickListener{
+        binding.add.setOnClickListener {
             findNavController().navigate(
                 R.id.action_feedFragment_to_newPostFragment,
                 Bundle().apply {
@@ -92,6 +90,7 @@ class FeedFragment : Fragment() {
             binding.srl.isRefreshing = false
             viewModel.loadPosts()
         }
+
         return binding.root
     }
 

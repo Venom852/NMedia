@@ -11,6 +11,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import ru.netology.nmedia.R
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.databinding.FragmentPostBinding
@@ -26,12 +28,14 @@ class PostFragment : Fragment() {
         private var post = Post(
             id = 0,
             author = "Me",
+            authorAvatar = "netology",
             video = null,
             content = "",
             published = 0,
             likedByMe = false,
             toShare = false,
             likes = 0,
+            attachment = null,
             shared = 0,
             numberViews = 0
         )
@@ -63,7 +67,7 @@ class PostFragment : Fragment() {
             }
 
             toShare.setOnClickListener {
-                viewModel.toShareById(post.id)
+//                viewModel.toShareById(post.id)
                 val intent = Intent().apply {
                     action = Intent.ACTION_SEND
                     type = "text/plain"
@@ -125,6 +129,21 @@ class PostFragment : Fragment() {
             views.text = CountCalculator.calculator(post.numberViews)
             groupVideo.visibility = View.VISIBLE
             content.visibility = View.VISIBLE
+            imageContent.visibility = View.VISIBLE
+
+            val url = "http://10.0.2.2:9999/avatars/${post.authorAvatar}"
+            val urlAttachment = "http://10.0.2.2:9999/images/${post.attachment?.url}"
+            val options = RequestOptions()
+
+            if (post.attachment == null) {
+                imageContent.visibility = View.GONE
+            } else {
+                Glide.with(binding.imageContent)
+                    .load(urlAttachment)
+                    .error(R.drawable.ic_error_24)
+                    .timeout(10_000)
+                    .into(binding.imageContent)
+            }
 
             if (post.video == null) {
                 groupVideo.visibility = View.GONE
@@ -132,6 +151,17 @@ class PostFragment : Fragment() {
 
             if (post.content == null) {
                 content.visibility = View.GONE
+            }
+
+            if (post.authorAvatar != "netology") {
+                Glide.with(binding.avatar)
+                    .load(url)
+                    .error(R.drawable.ic_error_24)
+                    .timeout(10_000)
+                    .apply(options.circleCrop())
+                    .into(binding.avatar)
+            } else {
+                avatar.setImageResource(R.drawable.ic_netology)
             }
         }
     }

@@ -17,6 +17,7 @@
         android:maxLines="1"
         app:layout_constraintBottom_toTopOf="@+id/published"
         app:layout_constraintEnd_toStartOf="@id/menu"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/avatar"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@sample/posts.json/data/author" />
@@ -43,14 +44,14 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/menu"
+        style="@style/App.Widget.MenuButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/menu"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:icon="@drawable/ic_menu_24"
         app:iconTint="#000000"
-        style="@style/App.Widget.MenuButton" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/headerBarrier"
@@ -62,57 +63,57 @@
 
     <TextView
         android:id="@+id/content"
-        android:autoLink="all"
         android:layout_width="@dimen/_0dp"
         android:layout_height="wrap_content"
+        android:autoLink="all"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/nameVideo"
-        tools:text="@sample/posts.json/data/content" />
+        tools:text="Образец" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/like"
+        style="@style/App.Widget.LikeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/common_spacing"
         android:checkable="true"
         android:contentDescription="@string/like"
-        app:iconPadding="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/content"
         app:icon="@drawable/ic_like_selector_24"
+        app:iconPadding="4dp"
         app:iconTint="@color/color_like_selector"
-        style="@style/App.Widget.LikeButton"
-        tools:text="34"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageContent"
+        tools:text="34" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/toShare"
+        style="@style/App.Widget.ShareButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/common_spacing"
         android:layout_marginStart="@dimen/common_spacing"
+        android:layout_marginTop="@dimen/common_spacing"
         android:checkable="true"
         android:contentDescription="@string/toShare"
-        app:iconPadding="4dp"
-        app:layout_constraintStart_toEndOf="@id/like"
-        app:layout_constraintTop_toBottomOf="@+id/content"
         app:icon="@drawable/ic_to_share_24"
+        app:iconPadding="4dp"
         app:iconTint="@color/color_share_selector"
-        style="@style/App.Widget.ShareButton"
-        tools:text="13"/>
+        app:layout_constraintStart_toEndOf="@id/like"
+        app:layout_constraintTop_toBottomOf="@+id/imageContent"
+        tools:text="13" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/views"
+        style="@style/App.Widget.MenuButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/common_spacing"
         android:contentDescription="@string/views"
-        app:iconPadding="4dp"
-        app:layout_constraintTop_toBottomOf="@+id/content"
-        app:layout_constraintEnd_toEndOf="parent"
         app:icon="@drawable/views"
+        app:iconPadding="4dp"
         app:iconTint="#000000"
-        style="@style/App.Widget.MenuButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageContent"
         tools:text="58" />
 
     <ImageView
@@ -126,31 +127,43 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerBarrier"
-        app:srcCompat="@drawable/ic_nature_24"
-        tools:text="@sample/posts.json/data/content" />
+        app:srcCompat="@drawable/ic_nature_24" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/play"
+        style="@style/App.Widget.MenuButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/play"
-        app:layout_constraintEnd_toEndOf="@id/videoContent"
-        app:layout_constraintTop_toTopOf="@id/videoContent"
-        app:layout_constraintBottom_toBottomOf="@id/videoContent"
-        app:layout_constraintStart_toStartOf="@id/videoContent"
         app:icon="@drawable/ic_play_24"
-        app:iconTint="#000000"
         app:iconSize="60dp"
-        style="@style/App.Widget.MenuButton" />
+        app:iconTint="#000000"
+        app:layout_constraintBottom_toBottomOf="@id/videoContent"
+        app:layout_constraintEnd_toEndOf="@id/videoContent"
+        app:layout_constraintStart_toStartOf="@id/videoContent"
+        app:layout_constraintTop_toTopOf="@id/videoContent" />
 
     <TextView
         android:id="@+id/nameVideo"
         android:layout_width="@dimen/_0dp"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
         android:text="@string/previewTitle"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/videoContent" />
+
+    <ImageView
+        android:id="@+id/imageContent"
+        android:layout_width="@dimen/_0dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:autoLink="all"
+        android:visibility="visible"
+        android:contentDescription="@string/ImageContent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/content"
+        tools:srcCompat="@drawable/ic_nature_24" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/groupVideo"
@@ -166,4 +179,4 @@
         android:visibility="visible"
         app:constraint_referenced_ids="content,author,published,avatar" />
 
- </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
