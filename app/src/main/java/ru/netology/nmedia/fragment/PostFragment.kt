@@ -8,15 +8,18 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import ru.netology.nmedia.R
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.databinding.FragmentPostBinding
 import com.google.gson.Gson
+import ru.netology.nmedia.databinding.ErrorCode400And500Binding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textContentArg
 import ru.netology.nmedia.util.CountCalculator
@@ -51,8 +54,10 @@ class PostFragment : Fragment() {
     ): View {
 //        enableEdgeToEdge()
         val binding = FragmentPostBinding.inflate(layoutInflater, container, false)
+        val bindingErrorCode400And500 = ErrorCode400And500Binding.inflate(layoutInflater, container, false)
         applyInset(binding.postFragment)
         val viewModel: PostViewModel by activityViewModels()
+        val dialog = BottomSheetDialog(requireContext())
 
         arguments?.textPost?.let {
             post = gson.fromJson(it, Post::class.java)
@@ -67,7 +72,7 @@ class PostFragment : Fragment() {
             }
 
             toShare.setOnClickListener {
-//                viewModel.toShareById(post.id)
+                viewModel.toShareById(post.id)
                 val intent = Intent().apply {
                     action = Intent.ACTION_SEND
                     type = "text/plain"
@@ -112,6 +117,19 @@ class PostFragment : Fragment() {
                         setValues(binding, post)
                     }
                 }
+                if (it.errorCode300){
+                    findNavController().navigateUp()
+                }
+            }
+
+            viewModel.bottomSheet.observe(viewLifecycleOwner) {
+                dialog.setCancelable(false)
+                dialog.setContentView(bindingErrorCode400And500.root)
+                dialog.show()
+            }
+
+            bindingErrorCode400And500.errorCode400And500.setOnClickListener {
+                dialog.dismiss()
             }
         }
         return binding.root

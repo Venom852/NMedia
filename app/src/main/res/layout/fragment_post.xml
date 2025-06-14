@@ -183,7 +183,18 @@
             android:clickable="true"
             android:focusable="true"
             android:visibility="visible"
-            app:constraint_referenced_ids="content,author,published,avatar" />
+            app:constraint_referenced_ids="content,author,published,avatar, imageContent" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/errorCode400And500"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardElevation="0dp"
+            app:layoutManager="androidx.cardview.widget.CardView"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
