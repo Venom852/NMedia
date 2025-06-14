@@ -24,7 +24,6 @@ class PostViewHolder(
     private val onInteractionListener: OnInteractionListener,
     private val gson: Gson = Gson()
 ) : RecyclerView.ViewHolder(binding.root) {
-    private val urls = listOf("netology.jpg", "sber.jpg", "tcs.jpg", "404.png")
     fun bind(post: Post) {
         with(binding) {
             author.text = post.author

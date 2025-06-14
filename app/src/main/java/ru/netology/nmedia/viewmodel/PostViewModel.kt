@@ -36,8 +36,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
+    private val _bottomSheet = SingleLiveEvent<Unit>()
+    val bottomSheet:LiveData<Unit>
+        get() = _bottomSheet
     private var nextId = 1L
     private var posts = emptyList<Post>()
+    private var oldPosts = emptyList<Post>()
 
     init {
         loadPosts()
@@ -47,20 +51,32 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         _data.value = FeedModel(loading = true)
         repository.getAllAsync(object : PostRepository.Callback<List<Post>> {
             override fun onSuccess(posts: List<Post>) {
-                _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
+                _data.value = FeedModel(posts = posts, empty = posts.isEmpty())
             }
 
             override fun onError(e: Exception) {
-                _data.postValue(FeedModel(error = true))
+                _data.value = FeedModel(error = true)
+            }
+
+            override fun onErrorCode300(e: Exception) {
+                _data.value = FeedModel(errorCode300 = true)
+            }
+
+            override fun onErrorCode400And500(e: Exception) {
+                _bottomSheet.value = Unit
             }
         })
 
     }
 
+    fun loadPostsWithoutServer() {
+        _data.value = _data.value?.copy(posts = oldPosts, errorCode300 = false)
+    }
+
     fun likeById(id: Long) {
-        val oldPosts = _data.value?.posts
-        var postLikedByMe = oldPosts?.find { it.id == id }?.likedByMe ?: return
-        _data.postValue(_data.value?.copy(posts = _data.value?.posts?.map {
+        oldPosts = _data.value?.posts.orEmpty()
+        var postLikedByMe = oldPosts.find { it.id == id }?.likedByMe ?: return
+        _data.value = _data.value?.copy(posts = _data.value?.posts?.map {
             if (id == it.id) {
                 it.copy(
                     likedByMe = !it.likedByMe,
@@ -73,26 +89,43 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 it
             }
-        } ?: return))
+        } ?: return)
         repository.likeByIdAsync(id, postLikedByMe, object : PostRepository.Callback<Unit> {
             override fun onError(e: Exception) {
-                _data.postValue(_data.value?.copy(posts = oldPosts))
+                _data.value = _data.value?.copy(posts = oldPosts)
+            }
+
+            override fun onErrorCode300(e: Exception) {
+                _data.value = FeedModel(errorCode300 = true)
+            }
+
+            override fun onErrorCode400And500(e: Exception) {
+                _data.value = _data.value?.copy(posts = oldPosts)
+                _bottomSheet.value = Unit
             }
         })
     }
 
     fun toShareById(id: Long) = thread { repository.toShareById(id) }
+
     fun removeById(id: Long) {
-        val oldPosts = _data.value?.posts.orEmpty()
-        _data.postValue(
-            _data.value?.copy(
+        oldPosts = _data.value?.posts.orEmpty()
+        _data.value = _data.value?.copy(
                 posts = _data.value?.posts.orEmpty()
                     .filter { it.id != id }
             )
-        )
         repository.removeByIdAsync(id, object : PostRepository.Callback<Unit> {
             override fun onError(e: Exception) {
-                _data.postValue(_data.value?.copy(posts = oldPosts))
+                _data.value = _data.value?.copy(posts = oldPosts)
+            }
+
+            override fun onErrorCode300(e: Exception) {
+                _data.value = FeedModel(errorCode300 = true)
+            }
+
+            override fun onErrorCode400And500(e: Exception) {
+                _data.value = _data.value?.copy(posts = oldPosts)
+                _bottomSheet.value = Unit
             }
         })
     }
@@ -111,12 +144,20 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                             if (it.id != post.id) it else post.copy(content = post.content)
                         }
                     }
-                    _data.postValue(_data.value?.copy(posts = posts))
-                    _postCreated.postValue(Unit)
+                    _data.value = _data.value?.copy(posts = posts)
+                    _postCreated.value = Unit
                 }
 
                 override fun onError(e: Exception) {
-                    _data.postValue(FeedModel(error = true))
+                    _data.value = FeedModel(error = true)
+                }
+
+                override fun onErrorCode300(e: Exception) {
+                    _data.value = FeedModel(errorCode300 = true)
+                }
+
+                override fun onErrorCode400And500(e: Exception) {
+                    _bottomSheet.value = Unit
                 }
             })
         }
@@ -126,4 +167,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun editById(post: Post) {
         edited.value = post
     }
+
+
 }
