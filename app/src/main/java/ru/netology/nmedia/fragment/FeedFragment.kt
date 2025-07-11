@@ -12,17 +12,20 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostAdapter
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.adapter.OnInteractionListener
+import ru.netology.nmedia.databinding.ErrorCode300Binding
+import ru.netology.nmedia.databinding.ErrorCode400And500Binding
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.NEW_POST_KEY
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textContentArg
 
 class FeedFragment : Fragment() {
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -30,6 +33,9 @@ class FeedFragment : Fragment() {
     ): View {
 //        enableEdgeToEdge()
         val binding = FragmentFeedBinding.inflate(layoutInflater, container, false)
+        val bindingErrorCode300 = ErrorCode300Binding.inflate(layoutInflater, container, false)
+        val bindingErrorCode400And500 = ErrorCode400And500Binding.inflate(layoutInflater, container, false)
+        val dialog = BottomSheetDialog(requireContext())
         applyInset(binding.main)
 
         val viewModel: PostViewModel by activityViewModels()
@@ -71,6 +77,13 @@ class FeedFragment : Fragment() {
             binding.progress.isVisible = state.loading
             binding.errorGroup.isVisible = state.error
             binding.emptyText.isVisible = state.empty
+            binding.error300Group.isVisible = state.errorCode300
+        }
+
+        viewModel.bottomSheet.observe(viewLifecycleOwner) {
+            dialog.setCancelable(false)
+            dialog.setContentView(bindingErrorCode400And500.root)
+            dialog.show()
         }
 
         binding.retryButton.setOnClickListener {
@@ -90,6 +103,20 @@ class FeedFragment : Fragment() {
             binding.srl.isRefreshing = false
             viewModel.loadPosts()
         }
+
+        binding.buttonError.setOnClickListener {
+            viewModel.loadPostsWithoutServer()
+        }
+
+        bindingErrorCode400And500.errorCode400And500.setOnClickListener {
+            dialog.dismiss()
+        }
+
+//        bindingErrorCode400And500.errorCode400And500.setOnTouchListener(object : SwipeListener(this) {
+//            override fun onSwipeDown() {
+//                dialog.dismiss()
+//            }
+//        }
 
         return binding.root
     }

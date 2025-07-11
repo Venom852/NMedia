@@ -29,4 +29,10 @@
     <string name="retry">Retry</string>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="ImageContent" translatable="false">imageContent</string>
+    <string name="error_text">Dear user, an error has occurred! Please restart the application. If the error persists after restarting the application, we recommend deleting and installing the application again!</string>
+    <string name="error_image" translatable="false">errorImage</string>
+    <string name="error_header">Error!</string>
+    <string name="clearly">Clearly</string>
+    <string name="oops_something_went_wrong_please_try_again">Oops. Something went wrong... Please try again!</string>
+    <string name="image_error" translatable="false">imageError</string>
 </resources>

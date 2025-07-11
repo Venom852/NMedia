@@ -24,7 +24,6 @@ class PostViewHolder(
     private val onInteractionListener: OnInteractionListener,
     private val gson: Gson = Gson()
 ) : RecyclerView.ViewHolder(binding.root) {
-    private val urls = listOf("netology.jpg", "sber.jpg", "tcs.jpg", "404.png")
     fun bind(post: Post) {
         with(binding) {
             author.text = post.author
@@ -116,6 +115,7 @@ class PostViewHolder(
                 println(it.context.packageManager.queryIntentActivities(intent, MATCH_ALL))
                 it.context.startActivity(intent)
             }
+
             play.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
                 println(intent.resolveActivity(it.context.packageManager))

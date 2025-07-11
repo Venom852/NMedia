@@ -13,5 +13,7 @@ interface PostRepository {
     interface Callback<T> {
         fun onSuccess(data: T) {}
         fun onError(e: Exception) {}
+        fun onErrorCode300(e: Exception)
+        fun onErrorCode400And500(e: Exception)
     }
 }
