@@ -12,5 +12,6 @@ data class Post(
     val likes: Long,
     val attachment: Attachment?,
     val shared: Long,
-    val numberViews: Long
+    val numberViews: Long,
+    val savedOnTheServer: Boolean
 )

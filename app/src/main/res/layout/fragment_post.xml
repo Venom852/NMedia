@@ -120,6 +120,18 @@
             tools:text="58" />
 
         <ImageView
+            android:id="@+id/saved"
+            style="@style/App.Widget.CheckButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="@dimen/common_spacing"
+            android:layout_marginTop="@dimen/common_spacing"
+            android:contentDescription="@string/saved"
+            app:srcCompat="@drawable/ic_check_24"
+            app:layout_constraintEnd_toStartOf="@id/views"
+            app:layout_constraintTop_toBottomOf="@+id/imageContent" />
+
+        <ImageView
             android:id="@+id/videoContent"
             android:layout_width="@dimen/_0dp"
             android:layout_height="wrap_content"

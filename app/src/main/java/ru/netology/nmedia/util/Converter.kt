@@ -9,8 +9,8 @@ object Converter {
     private val gson = Gson()
 
     @TypeConverter
-    fun сonvertToJson(attachment: Attachment) = gson.toJson(attachment)
+    fun convertToJson(attachment: Attachment?): String? = gson.toJson(attachment)
 
     @TypeConverter
-    fun convertFromJson(string: String) = gson.fromJson(string, Attachment::class.java)
+    fun convertFromJson(string: String): Attachment? = gson.fromJson(string, Attachment::class.java)
 }

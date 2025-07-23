@@ -33,6 +33,7 @@
     <string name="error_image" translatable="false">errorImage</string>
     <string name="error_header">Error!</string>
     <string name="clearly">Clearly</string>
-    <string name="oops_something_went_wrong_please_try_again">Oops. Something went wrong... Please try again!</string>
+    <string name="oops_something_went_wrong_please_try_again">Oops. Something went wrong… Please try again!</string>
     <string name="image_error" translatable="false">imageError</string>
+    <string name="saved" translatable="false">saved</string>
 </resources>

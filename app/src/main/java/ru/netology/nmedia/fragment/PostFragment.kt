@@ -5,10 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -19,11 +19,14 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.databinding.FragmentPostBinding
 import com.google.gson.Gson
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.databinding.ErrorCode400And500Binding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textContentArg
 import ru.netology.nmedia.util.CountCalculator
 import ru.netology.nmedia.util.StringArg
+import ru.netology.nmedia.util.SwipeDirection
+import ru.netology.nmedia.util.detectSwipe
 
 class PostFragment : Fragment() {
 
@@ -40,7 +43,8 @@ class PostFragment : Fragment() {
             likes = 0,
             attachment = null,
             shared = 0,
-            numberViews = 0
+            numberViews = 0,
+            savedOnTheServer = false
         )
         private val gson = Gson()
         private var postId: Long = 0
@@ -52,7 +56,6 @@ class PostFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-//        enableEdgeToEdge()
         val binding = FragmentPostBinding.inflate(layoutInflater, container, false)
         val bindingErrorCode400And500 = ErrorCode400And500Binding.inflate(layoutInflater, container, false)
         applyInset(binding.postFragment)
@@ -117,6 +120,9 @@ class PostFragment : Fragment() {
                         setValues(binding, post)
                     }
                 }
+            }
+
+            viewModel.dataState.observe(viewLifecycleOwner) {
                 if (it.errorCode300){
                     findNavController().navigateUp()
                 }
@@ -128,8 +134,18 @@ class PostFragment : Fragment() {
                 dialog.show()
             }
 
-            bindingErrorCode400And500.errorCode400And500.setOnClickListener {
-                dialog.dismiss()
+            bindingErrorCode400And500.errorCode400And500.detectSwipe { event ->
+                val text = when (event) {
+                    SwipeDirection.Down -> "onSwipeDown"
+                    SwipeDirection.Left -> "onSwipeLeft"
+                    SwipeDirection.Right -> "onSwipeRight"
+                    SwipeDirection.Up -> "onSwipeUp"
+                }
+
+                if (text == "onSwipeDown") {
+                    dialog.dismiss()
+                    Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
+                }
             }
         }
         return binding.root
@@ -149,8 +165,8 @@ class PostFragment : Fragment() {
             content.visibility = View.VISIBLE
             imageContent.visibility = View.VISIBLE
 
-            val url = "http://10.0.2.2:9999/avatars/${post.authorAvatar}"
-            val urlAttachment = "http://10.0.2.2:9999/images/${post.attachment?.url}"
+            val url = "${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}"
+            val urlAttachment = "${BuildConfig.BASE_URL}/images/${post.attachment?.url}"
             val options = RequestOptions()
 
             if (post.attachment == null) {
@@ -180,6 +196,10 @@ class PostFragment : Fragment() {
                     .into(binding.avatar)
             } else {
                 avatar.setImageResource(R.drawable.ic_netology)
+            }
+
+            if (post.savedOnTheServer) {
+                saved.setImageResource(R.drawable.ic_checked_24)
             }
         }
     }
