@@ -6,9 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import ru.netology.nmedia.databinding.ErrorCode400And500Binding
@@ -17,6 +17,7 @@ import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
+import kotlinx.coroutines.launch
 
 class NewPostFragment : Fragment() {
     companion object {
@@ -32,7 +33,8 @@ class NewPostFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentNewPostBinding.inflate(layoutInflater, container, false)
-        val bindingErrorCode400And500 = ErrorCode400And500Binding.inflate(layoutInflater, container, false)
+        val bindingErrorCode400And500 =
+            ErrorCode400And500Binding.inflate(layoutInflater, container, false)
         val dialog = BottomSheetDialog(requireContext())
         val viewModel: PostViewModel by activityViewModels()
         val dao = AppDb.getInstance(requireContext()).postDao
@@ -46,9 +48,11 @@ class NewPostFragment : Fragment() {
             val text = it
             if (text == NEW_POST_KEY) {
                 binding.group.visibility = View.GONE
-                if (dao.getDraft() != null) {
-                    binding.content.setText(dao.getDraft())
-                    dao.removeDraft()
+                lifecycleScope.launch {
+                    if (dao.getDraft() != null) {
+                        binding.content.setText(dao.getDraft())
+                        dao.removeDraft()
+                    }
                 }
             } else {
                 binding.content.setText(text)
@@ -72,7 +76,7 @@ class NewPostFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        viewModel.data.observe(viewLifecycleOwner) {
+        viewModel.dataState.observe(viewLifecycleOwner) {
             if (it.errorCode300) {
                 findNavController().navigateUp()
             }
@@ -95,7 +99,9 @@ class NewPostFragment : Fragment() {
 
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
             if (!isEmpty(binding.content.text.toString()) && !editing) {
-                dao.saveDraft(binding.content.text.toString())
+                lifecycleScope.launch {
+                    dao.saveDraft(binding.content.text.toString())
+                }
             }
             editing = false
             viewModel.edited.value = viewModel.empty

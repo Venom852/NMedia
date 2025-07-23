@@ -3,6 +3,7 @@ package ru.netology.nmedia.dao
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import ru.netology.nmedia.entity.ContentDraftEntity
 import ru.netology.nmedia.entity.PostEntity
@@ -11,14 +12,19 @@ import ru.netology.nmedia.entity.PostEntity
 interface PostDao {
     @Query("SELECT * FROM PostEntity ORDER BY id DESC")
     fun getAll(): LiveData<List<PostEntity>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(post: PostEntity)
 
-    @Insert
-    fun insert(post: PostEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPosts(posts: List<PostEntity>)
 
     @Query("UPDATE PostEntity Set content = :text WHERE id = :id")
-    fun changeContentById(id: Long, text: String)
+    suspend fun changeContentById(id: Long, text: String)
 
-    fun save(post: PostEntity) =
+    @Query("UPDATE PostEntity Set id = :newId, savedOnTheServer = :savedOnTheServer WHERE id = :id")
+    suspend fun changeIdPostById(id: Long, newId: Long, savedOnTheServer: Boolean)
+
+    suspend fun save(post: PostEntity) =
         if (post.id == 0L) insert(post) else changeContentById(post.id, post.content.toString())
 
     @Query(
@@ -29,7 +35,7 @@ interface PostDao {
             WHERE id = :id;
         """
     )
-    fun toShareById(id: Long)
+    suspend fun toShareById(id: Long)
 
     @Query(
         """
@@ -39,19 +45,19 @@ interface PostDao {
             WHERE id = :id;
         """
     )
-    fun likeById(id: Long)
+    suspend fun likeById(id: Long)
 
     @Query("DELETE FROM PostEntity WHERE id = :id")
-    fun removeById(id: Long)
+    suspend fun removeById(id: Long)
 
-    @Insert
-    fun insertDraft(contentDraftEntity: ContentDraftEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertDraft(contentDraftEntity: ContentDraftEntity)
 
-    fun saveDraft(draft: String) = insertDraft(ContentDraftEntity(contentDraft = draft))
+    suspend fun saveDraft(draft: String) = insertDraft(ContentDraftEntity(contentDraft = draft))
 
     @Query("DELETE FROM ContentDraftEntity")
-    fun removeDraft()
+    suspend fun removeDraft()
 
     @Query("SELECT * FROM ContentDraftEntity")
-    fun getDraft(): String?
+    suspend fun getDraft(): String?
 }
