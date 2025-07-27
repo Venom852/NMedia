@@ -13,5 +13,6 @@ data class Post(
     val attachment: Attachment?,
     val shared: Long,
     val numberViews: Long,
-    val savedOnTheServer: Boolean
+    val savedOnTheServer: Boolean,
+    val viewed: Boolean
 )

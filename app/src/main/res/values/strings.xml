@@ -36,4 +36,5 @@
     <string name="oops_something_went_wrong_please_try_again">Oops. Something went wrong… Please try again!</string>
     <string name="image_error" translatable="false">imageError</string>
     <string name="saved" translatable="false">saved</string>
+    <string name="recent_entries">Recent entries</string>
 </resources>
