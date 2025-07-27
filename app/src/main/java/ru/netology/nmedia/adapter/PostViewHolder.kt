@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.gson.Gson
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -38,8 +39,8 @@ class PostViewHolder(
             content.visibility = View.VISIBLE
             imageContent.visibility = View.VISIBLE
 
-            val url = "http://10.0.2.2:9999/avatars/${post.authorAvatar}"
-            val urlAttachment = "http://10.0.2.2:9999/images/${post.attachment?.url}"
+            val url = "${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}"
+            val urlAttachment = "${BuildConfig.BASE_URL}/images/${post.attachment?.url}"
             val options = RequestOptions()
 
             if (post.attachment == null) {
@@ -69,6 +70,10 @@ class PostViewHolder(
                     .into(binding.avatar)
             } else {
                 avatar.setImageResource(R.drawable.ic_netology)
+            }
+
+            if (post.savedOnTheServer) {
+                saved.setImageResource(R.drawable.ic_checked_24)
             }
 
             like.setOnClickListener {
@@ -127,7 +132,7 @@ class PostViewHolder(
     }
 
     private fun Group.setAllOnClickListener(listener: (View) -> Unit) {
-        referencedIds.forEach {
+        referencedIds.forEach { _ ->
             rootView.setOnClickListener(listener)
         }
     }

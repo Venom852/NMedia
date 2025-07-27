@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -13,27 +14,27 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostAdapter
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.adapter.OnInteractionListener
-import ru.netology.nmedia.databinding.ErrorCode300Binding
 import ru.netology.nmedia.databinding.ErrorCode400And500Binding
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.NEW_POST_KEY
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textContentArg
+import ru.netology.nmedia.util.SwipeDirection
+import ru.netology.nmedia.util.detectSwipe
 
 class FeedFragment : Fragment() {
-    @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-//        enableEdgeToEdge()
         val binding = FragmentFeedBinding.inflate(layoutInflater, container, false)
-        val bindingErrorCode300 = ErrorCode300Binding.inflate(layoutInflater, container, false)
         val bindingErrorCode400And500 = ErrorCode400And500Binding.inflate(layoutInflater, container, false)
         val dialog = BottomSheetDialog(requireContext())
         applyInset(binding.main)
@@ -74,20 +75,30 @@ class FeedFragment : Fragment() {
 
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
-            binding.progress.isVisible = state.loading
-            binding.errorGroup.isVisible = state.error
             binding.emptyText.isVisible = state.empty
-            binding.error300Group.isVisible = state.errorCode300
+        }
+
+        viewModel.dataState.observe(viewLifecycleOwner) { state ->
+            binding.progress.isVisible = state.loading
+            if (state.errorCode300) {
+                binding.main.isVisible = false
+                binding.errorCode300.error300Group.isVisible = true
+            } else {
+                binding.main.isVisible = true
+                binding.errorCode300.error300Group.isVisible = false
+            }
+            binding.srl.isRefreshing = state.refreshing
+            if (state.error) {
+                Snackbar.make(binding.root, R.string.something_went_wrong, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.retry) { viewModel.loadPosts() }
+                    .show()
+            }
         }
 
         viewModel.bottomSheet.observe(viewLifecycleOwner) {
             dialog.setCancelable(false)
             dialog.setContentView(bindingErrorCode400And500.root)
             dialog.show()
-        }
-
-        binding.retryButton.setOnClickListener {
-            viewModel.loadPosts()
         }
 
         binding.add.setOnClickListener {
@@ -100,23 +111,26 @@ class FeedFragment : Fragment() {
         }
 
         binding.srl.setOnRefreshListener {
-            binding.srl.isRefreshing = false
-            viewModel.loadPosts()
+            viewModel.refreshPosts()
         }
 
-        binding.buttonError.setOnClickListener {
+        binding.errorCode300.buttonError.setOnClickListener {
             viewModel.loadPostsWithoutServer()
         }
 
-        bindingErrorCode400And500.errorCode400And500.setOnClickListener {
-            dialog.dismiss()
-        }
+        bindingErrorCode400And500.errorCode400And500.detectSwipe { event ->
+            val text = when (event) {
+                SwipeDirection.Down -> "onSwipeDown"
+                SwipeDirection.Left -> "onSwipeLeft"
+                SwipeDirection.Right -> "onSwipeRight"
+                SwipeDirection.Up -> "onSwipeUp"
+            }
 
-//        bindingErrorCode400And500.errorCode400And500.setOnTouchListener(object : SwipeListener(this) {
-//            override fun onSwipeDown() {
-//                dialog.dismiss()
-//            }
-//        }
+            if (text == "onSwipeDown") {
+                dialog.dismiss()
+                Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
+            }
+        }
 
         return binding.root
     }
