@@ -82,14 +82,6 @@ class FeedFragment : Fragment() {
                 }
             }
             binding.emptyText.isVisible = state.empty
-
-//            val newPost = adapter.currentList.size < state.posts.size
-//            adapter.submitList(state.posts) {
-//                if (newPost) {
-//                    binding.main.smoothScrollToPosition(0)
-//                }
-//            }
-//            binding.emptyText.isVisible = state.empty
         }
 
         viewModel.dataState.observe(viewLifecycleOwner) { state ->

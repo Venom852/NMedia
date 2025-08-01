@@ -109,7 +109,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/common_spacing"
         android:contentDescription="@string/views"
-        app:icon="@drawable/views"
+        app:icon="@drawable/view"
         app:iconPadding="4dp"
         app:iconTint="#000000"
         app:layout_constraintEnd_toEndOf="parent"

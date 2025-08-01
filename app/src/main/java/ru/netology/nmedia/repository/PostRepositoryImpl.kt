@@ -8,11 +8,17 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.api.PostsApi
 import ru.netology.nmedia.dao.PostDao
+import ru.netology.nmedia.dto.Attachment
+import ru.netology.nmedia.dto.Media
+import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.entity.toEntity
+import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.ErrorCode400And500
 import ru.netology.nmedia.error.NetworkError
@@ -114,7 +120,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     }
 
     override fun toShareById(id: Long) {
-        println()
+        // TODO:
     }
 
     override suspend fun save(post: Post): Post {
@@ -131,6 +137,8 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             }
 
             throw ApiError(response.code(), response.message())
+        } catch (e: AppError) {
+            throw e
         } catch (e: ErrorCode400And500) {
             throw ErrorCode400And500
         } catch (e: IOException) {
@@ -146,6 +154,55 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
             if (response.isSuccessful) {
                 return
+            }
+
+            if (response.code() in 400..599) {
+                throw ErrorCode400And500
+            }
+
+            throw ApiError(response.code(), response.message())
+        } catch (e: ErrorCode400And500) {
+            throw ErrorCode400And500
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun saveWithAttachment(post: Post, upload: MediaUpload): Post {
+        try {
+            val media = upload(upload)
+            // TODO: add support for other types
+            val postWithAttachment = post.copy(
+                attachment = Attachment(
+                    media.id,
+                    null,
+                    AttachmentType.IMAGE,
+//                    null
+                )
+            )
+             return save(postWithAttachment)
+        } catch (e: AppError) {
+            throw e
+        } catch (e: ErrorCode400And500) {
+            throw ErrorCode400And500
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun upload(upload: MediaUpload): Media {
+        try {
+            val media = MultipartBody.Part.createFormData(
+                "file", upload.file.name, upload.file.asRequestBody()
+            )
+
+            val response = PostsApi.retrofitService.upload(media)
+            if (response.isSuccessful) {
+                return response.body() ?: throw ApiError(response.code(), response.message())
             }
 
             if (response.code() in 400..599) {
