@@ -1,6 +1,7 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,17 +16,22 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.dto.Attachment
+import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.entity.toEntity
+import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.error.ErrorCode400And500
 import ru.netology.nmedia.error.UnknownError
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
+import java.io.File
 import kotlin.collections.orEmpty
 import kotlin.concurrent.thread
 
@@ -47,6 +53,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         viewed = true
     )
 
+    private val noPhoto = PhotoModel()
     private val dao: PostDao = AppDb.getInstance(application).postDao
     private val repository: PostRepository = PostRepositoryImpl(dao)
     val data: LiveData<FeedModel> = repository.data.map(::FeedModel).asLiveData(Dispatchers.Default)
@@ -66,6 +73,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _bottomSheet = SingleLiveEvent<Unit>()
     val bottomSheet: LiveData<Unit>
         get() = _bottomSheet
+    private val _photo = MutableLiveData(noPhoto)
+    val photo: LiveData<PhotoModel>
+        get() = _photo
     private var oldPost = empty
     private var oldPosts = emptyList<Post>()
 
@@ -165,40 +175,69 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             viewModelScope.launch {
                 oldPosts = data.value?.posts.orEmpty()
                 val post = it.copy(content = content)
-                dao.save(PostEntity.fromDto(post))
-                _postCreated.value = Unit
+                var postServer = empty
+
+//                if (_photo.value?.uri != null) {
+//                    _photo.value?.uri?.let { uri ->
+//                        post = post.copy(
+//                            attachment = Attachment(
+//                                url = null,
+//                                description = null,
+//                                type = AttachmentType.IMAGE,
+//                                uri = uri.toString()
+//                            )
+//                        )
+//                    }
+//                    dao.save(PostEntity.fromDto(post))
+//                } else {
+//                    dao.save(PostEntity.fromDto(post))
+//                }
+//                _postCreated.value = Unit
                 try {
-                    val postServer = repository.save(post)
+                    when (_photo.value) {
+                        noPhoto -> postServer = repository.save(post)
+                        else -> _photo.value?.file?.let { file ->
+                            postServer = repository.saveWithAttachment(post, MediaUpload(file))
+                        }
+                    }
+
+                    _postCreated.value = Unit
                     if (post.id == 0L) {
                         oldPost = data.value?.posts.orEmpty().first()
-                        dao.changeIdPostById(oldPost.id, postServer.id, savedOnTheServer = true)
+                        dao.save(PostEntity.fromDto(postServer))
+//                        dao.changeIdPostById(oldPost.id, postServer.id, savedOnTheServer = true)
                     }
                 } catch (e: ErrorCode400And500) {
                     _bottomSheet.value = Unit
-                    if (post.id == 0L) {
+                    if (post.id == 0L && _photo.value == noPhoto) {
                         dao.removeById(oldPost.id)
                         return@launch
-                    }
-                    dao.insertPosts(oldPosts.toEntity())
+                    } else dao.insertPosts(oldPosts.toEntity())
                 } catch (e: UnknownError) {
                     _dataState.value = FeedModelState(errorCode300 = true)
-                    if (post.id == 0L) {
+                    if (post.id == 0L && _photo.value == noPhoto) {
                         dao.removeById(oldPost.id)
                         return@launch
-                    }
-                    dao.insertPosts(oldPosts.toEntity())
+                    } else dao.insertPosts(oldPosts.toEntity())
                 } catch (e: Exception) {
-                    print(e)
-                    dao.removeById(oldPost.id)
                     _dataState.value = FeedModelState(error = true)
+                    if (post.id == 0L && _photo.value == noPhoto) {
+                        dao.removeById(oldPost.id)
+                        return@launch
+                    } else dao.insertPosts(oldPosts.toEntity())
                 }
             }
         }
         edited.value = empty
+        _photo.value = noPhoto
     }
 
     fun editById(post: Post) {
         edited.value = post
+    }
+
+    fun changePhoto(uri: Uri?, file: File?) {
+        _photo.value = PhotoModel(uri, file)
     }
 
 }

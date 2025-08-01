@@ -7,10 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -123,6 +125,15 @@ class PostFragment : Fragment() {
                 }
             }
 
+            imageContent.setOnClickListener {
+                Navigation.findNavController(it).navigate(
+                    R.id.action_postFragment2_to_photoFragment2,
+                    Bundle().apply {
+                        textPost = gson.toJson(post)
+                    }
+                )
+            }
+
             viewModel.dataState.observe(viewLifecycleOwner) {
                 if (it.errorCode300){
                     findNavController().navigateUp()
@@ -159,6 +170,7 @@ class PostFragment : Fragment() {
             published.text = post.published.toString()
             like.isChecked = post.likedByMe
             toShare.isChecked = post.toShare
+//            imageContent.setImageURI(post.attachment?.uri?.toUri())
             like.text = CountCalculator.calculator(post.likes)
             toShare.text = CountCalculator.calculator(post.shared)
             views.text = CountCalculator.calculator(post.numberViews)
@@ -167,7 +179,7 @@ class PostFragment : Fragment() {
             imageContent.visibility = View.VISIBLE
 
             val url = "${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}"
-            val urlAttachment = "${BuildConfig.BASE_URL}/images/${post.attachment?.url}"
+            val urlAttachment = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
             val options = RequestOptions()
 
             if (post.attachment == null) {
@@ -179,6 +191,14 @@ class PostFragment : Fragment() {
                     .timeout(10_000)
                     .into(binding.imageContent)
             }
+
+//            if (post.attachment?.url != null) {
+//                Glide.with(binding.imageContent)
+//                    .load(urlAttachment)
+//                    .error(R.drawable.ic_error_24)
+//                    .timeout(10_000)
+//                    .into(binding.imageContent)
+//            }
 
             if (post.video == null) {
                 groupVideo.visibility = View.GONE

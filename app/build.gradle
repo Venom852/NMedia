@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace 'ru.netology.nmedia'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "ru.netology.nmedia"
@@ -64,6 +64,7 @@ dependencies {
     implementation libs.retrofit
     implementation libs.converter.gson
     implementation libs.logging.interceptor
+    implementation libs.imagepicker
 
     coreLibraryDesugaring libs.desugar.jdk.libs
     kapt libs.kapt
