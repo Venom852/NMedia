@@ -20,7 +20,8 @@ data class PostEntity(
     val attachment: Attachment?,
     val shared: Long,
     val numberViews: Long,
-    val savedOnTheServer: Boolean
+    val savedOnTheServer: Boolean,
+    val viewed: Boolean
 ) {
     fun toDto() = Post(
         id,
@@ -35,7 +36,8 @@ data class PostEntity(
         attachment,
         shared,
         numberViews,
-        savedOnTheServer
+        savedOnTheServer,
+        viewed
     )
 
     companion object {
@@ -52,7 +54,8 @@ data class PostEntity(
             post.attachment,
             post.shared,
             post.numberViews,
-            post.savedOnTheServer
+            post.savedOnTheServer,
+            post.viewed
         )
     }
 }

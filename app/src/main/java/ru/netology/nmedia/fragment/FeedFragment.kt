@@ -35,7 +35,8 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentFeedBinding.inflate(layoutInflater, container, false)
-        val bindingErrorCode400And500 = ErrorCode400And500Binding.inflate(layoutInflater, container, false)
+        val bindingErrorCode400And500 =
+            ErrorCode400And500Binding.inflate(layoutInflater, container, false)
         val dialog = BottomSheetDialog(requireContext())
         applyInset(binding.main)
 
@@ -74,8 +75,21 @@ class FeedFragment : Fragment() {
         binding.main.adapter = adapter
 
         viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
+            val newPost = adapter.currentList.size < state.posts.size
+            adapter.submitList(state.posts) {
+                if (newPost) {
+                    binding.main.smoothScrollToPosition(0)
+                }
+            }
             binding.emptyText.isVisible = state.empty
+
+//            val newPost = adapter.currentList.size < state.posts.size
+//            adapter.submitList(state.posts) {
+//                if (newPost) {
+//                    binding.main.smoothScrollToPosition(0)
+//                }
+//            }
+//            binding.emptyText.isVisible = state.empty
         }
 
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
@@ -95,6 +109,11 @@ class FeedFragment : Fragment() {
             }
         }
 
+        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
+            print(state)
+            binding.browse.isVisible = true
+        }
+
         viewModel.bottomSheet.observe(viewLifecycleOwner) {
             dialog.setCancelable(false)
             dialog.setContentView(bindingErrorCode400And500.root)
@@ -112,6 +131,11 @@ class FeedFragment : Fragment() {
 
         binding.srl.setOnRefreshListener {
             viewModel.refreshPosts()
+        }
+
+        binding.browse.setOnClickListener {
+            viewModel.browse()
+            binding.browse.isVisible = false
         }
 
         binding.errorCode300.buttonError.setOnClickListener {

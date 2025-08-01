@@ -44,7 +44,8 @@ class PostFragment : Fragment() {
             attachment = null,
             shared = 0,
             numberViews = 0,
-            savedOnTheServer = false
+            savedOnTheServer = false,
+            viewed = true
         )
         private val gson = Gson()
         private var postId: Long = 0
