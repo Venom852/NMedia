@@ -5,9 +5,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -17,14 +21,27 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.AppActivityBinding
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
+import androidx.core.view.MenuProvider
+import ru.netology.nmedia.viewmodel.AuthViewModel
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import ru.netology.nmedia.auth.AuthState
+import ru.netology.nmedia.databinding.ConfirmationOfExitBinding
+import ru.netology.nmedia.viewmodel.SignInViewModel
 
 class AppActivity : AppCompatActivity() {
+    private val viewModel: AuthViewModel by viewModels()
+    private val viewModelSignInView: SignInViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val binding = AppActivityBinding.inflate(layoutInflater)
+        val bindingConfirmationOfExit = ConfirmationOfExitBinding.inflate(layoutInflater)
+        val dialog = BottomSheetDialog(this)
+
         setContentView(binding.root)
         applyInset(binding.root)
         requestNotificationsPermission()
@@ -56,6 +73,53 @@ class AppActivity : AppCompatActivity() {
         }
 
         checkGoogleApiAvailability()
+
+        addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.auth_menu, menu)
+
+                menu.let {
+                    it.setGroupVisible(R.id.unauthenticated, !viewModel.authenticated)
+                    it.setGroupVisible(R.id.authenticated, viewModel.authenticated)
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                when (menuItem.itemId) {
+                    R.id.signIn -> {
+                        findNavController(R.id.fragmentContainer).navigate(
+                            R.id.action_feedFragment_to_signInFragment2
+                        )
+                        true
+                    }
+
+                    R.id.signUp -> {
+                        findNavController(R.id.fragmentContainer).navigate(
+                            R.id.action_feedFragment_to_signUpFragment2
+                        )
+                        true
+                    }
+
+                    R.id.signOut -> {
+                        dialog.setCancelable(false)
+                        dialog.setContentView(bindingConfirmationOfExit.root)
+                        dialog.show()
+//                        AppAuth.getInstance().removeAuth()
+                        true
+                    }
+
+                    else -> false
+                }
+        })
+
+        bindingConfirmationOfExit.close.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        bindingConfirmationOfExit.signOut.setOnClickListener {
+            AppAuth.getInstance().removeAuth()
+            dialog.dismiss()
+        }
     }
 
     private fun requestNotificationsPermission() {

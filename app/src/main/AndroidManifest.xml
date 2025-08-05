@@ -5,8 +5,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+<!--    android:theme="@style/AppTheme"-->
 <!--    android:theme="@style/Theme.NMedia"-->
     <application
+        android:name=".application.NMediaApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

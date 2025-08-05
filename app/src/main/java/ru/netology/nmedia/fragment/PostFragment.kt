@@ -36,6 +36,7 @@ class PostFragment : Fragment() {
         private var post = Post(
             id = 0,
             author = "Me",
+            authorId = 0,
             authorAvatar = "netology",
             video = null,
             content = "",
@@ -47,7 +48,8 @@ class PostFragment : Fragment() {
             shared = 0,
             numberViews = 0,
             savedOnTheServer = false,
-            viewed = true
+            viewed = true,
+            ownedByMe = false
         )
         private val gson = Gson()
         private var postId: Long = 0
@@ -177,6 +179,7 @@ class PostFragment : Fragment() {
             groupVideo.visibility = View.VISIBLE
             content.visibility = View.VISIBLE
             imageContent.visibility = View.VISIBLE
+            menu.visibility = if (post.ownedByMe) View.VISIBLE else View.INVISIBLE
 
             val url = "${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}"
             val urlAttachment = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"

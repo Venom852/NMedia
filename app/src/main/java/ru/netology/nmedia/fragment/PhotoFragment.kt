@@ -34,6 +34,7 @@ class PhotoFragment : Fragment() {
         private var post = Post(
             id = 0,
             author = "Me",
+            authorId = 0,
             authorAvatar = "netology",
             video = null,
             content = "",
@@ -45,7 +46,8 @@ class PhotoFragment : Fragment() {
             shared = 0,
             numberViews = 0,
             savedOnTheServer = false,
-            viewed = true
+            viewed = true,
+            ownedByMe = false
         )
         private val gson = Gson()
         private var postId: Long = 0

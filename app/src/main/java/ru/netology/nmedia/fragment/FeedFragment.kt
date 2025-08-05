@@ -19,6 +19,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostAdapter
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.adapter.OnInteractionListener
+import ru.netology.nmedia.databinding.AuthorizationDialogBoxBinding
 import ru.netology.nmedia.databinding.ErrorCode400And500Binding
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
@@ -26,6 +27,8 @@ import ru.netology.nmedia.fragment.NewPostFragment.Companion.NEW_POST_KEY
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textContentArg
 import ru.netology.nmedia.util.SwipeDirection
 import ru.netology.nmedia.util.detectSwipe
+import ru.netology.nmedia.viewmodel.SignInViewModel
+import ru.netology.nmedia.viewmodel.SignUpViewModel
 
 class FeedFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
@@ -37,13 +40,25 @@ class FeedFragment : Fragment() {
         val binding = FragmentFeedBinding.inflate(layoutInflater, container, false)
         val bindingErrorCode400And500 =
             ErrorCode400And500Binding.inflate(layoutInflater, container, false)
-        val dialog = BottomSheetDialog(requireContext())
+        val bindingAuthorizationDialogBox =
+            AuthorizationDialogBoxBinding.inflate(layoutInflater, container, false)
+
         applyInset(binding.main)
 
+        val dialog = BottomSheetDialog(requireContext())
+        var authorization = false
         val viewModel: PostViewModel by activityViewModels()
+        val viewModelSignIn: SignInViewModel by activityViewModels()
+        val viewModelSignUp: SignUpViewModel by activityViewModels()
         val adapter = PostAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
-                viewModel.likeById(post.id)
+                if (post.ownedByMe) {
+                    viewModel.likeById(post.id)
+                } else {
+                    dialog.setCancelable(false)
+                    dialog.setContentView(bindingAuthorizationDialogBox.root)
+                    dialog.show()
+                }
             }
 
             override fun onShare(post: Post) {
@@ -101,10 +116,10 @@ class FeedFragment : Fragment() {
             }
         }
 
-        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
-            print(state)
-            binding.browse.isVisible = true
-        }
+//        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
+//            print(state)
+//            binding.browse.isVisible = true
+//        }
 
         viewModel.bottomSheet.observe(viewLifecycleOwner) {
             dialog.setCancelable(false)
@@ -112,23 +127,41 @@ class FeedFragment : Fragment() {
             dialog.show()
         }
 
+        viewModelSignIn.authState.observe(viewLifecycleOwner) {
+            if (it.token != null) {
+                authorization = true
+            }
+        }
+
+        viewModelSignUp.authState.observe(viewLifecycleOwner) {
+            if (it.token != null) {
+                authorization = true
+            }
+        }
+
         binding.add.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_feedFragment_to_newPostFragment,
-                Bundle().apply {
-                    textContentArg = NEW_POST_KEY
-                }
-            )
+            if (authorization) {
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_newPostFragment,
+                    Bundle().apply {
+                        textContentArg = NEW_POST_KEY
+                    }
+                )
+            } else {
+                dialog.setCancelable(false)
+                dialog.setContentView(bindingAuthorizationDialogBox.root)
+                dialog.show()
+            }
         }
 
         binding.srl.setOnRefreshListener {
             viewModel.refreshPosts()
         }
 
-        binding.browse.setOnClickListener {
-            viewModel.browse()
-            binding.browse.isVisible = false
-        }
+//        binding.browse.setOnClickListener {
+//            viewModel.browse()
+//            binding.browse.isVisible = false
+//        }
 
         binding.errorCode300.buttonError.setOnClickListener {
             viewModel.loadPostsWithoutServer()
@@ -146,6 +179,17 @@ class FeedFragment : Fragment() {
                 dialog.dismiss()
                 Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
             }
+        }
+
+        bindingAuthorizationDialogBox.logIn.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_feedFragment_to_signInFragment2
+            )
+            dialog.dismiss()
+        }
+
+        bindingAuthorizationDialogBox.close.setOnClickListener {
+            dialog.dismiss()
         }
 
         return binding.root

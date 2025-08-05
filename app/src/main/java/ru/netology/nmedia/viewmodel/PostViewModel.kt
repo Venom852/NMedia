@@ -10,19 +10,17 @@ import androidx.lifecycle.switchMap
 import kotlinx.coroutines.flow.map
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.db.AppDb
-import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
-import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.entity.toEntity
-import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.error.ErrorCode400And500
 import ru.netology.nmedia.error.UnknownError
 import ru.netology.nmedia.model.FeedModel
@@ -39,6 +37,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val empty = Post(
         id = 0,
         author = "Me",
+        authorId = 0,
         authorAvatar = "netology",
         video = null,
         content = "",
@@ -50,13 +49,25 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         shared = 0,
         numberViews = 0,
         savedOnTheServer = false,
-        viewed = true
+        viewed = true,
+        ownedByMe = false
     )
 
     private val noPhoto = PhotoModel()
     private val dao: PostDao = AppDb.getInstance(application).postDao
     private val repository: PostRepository = PostRepositoryImpl(dao)
-    val data: LiveData<FeedModel> = repository.data.map(::FeedModel).asLiveData(Dispatchers.Default)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val data: LiveData<FeedModel> = AppAuth.getInstance()
+        .authStateFlow
+        .flatMapLatest { (myId, _) ->
+            repository.data
+                .map { posts ->
+                    FeedModel(
+                        posts.map { it.copy(ownedByMe = it.authorId == myId) },
+                        posts.isEmpty()
+                    )
+                }
+        }.asLiveData(Dispatchers.Default)
     private val _dataState = MutableLiveData(FeedModelState())
     val dataState: LiveData<FeedModelState>
         get() = _dataState
