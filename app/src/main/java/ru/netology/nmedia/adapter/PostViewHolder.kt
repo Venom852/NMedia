@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.Group
+import androidx.core.net.toUri
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -32,6 +33,7 @@ class PostViewHolder(
             published.text = post.published.toString()
             like.isChecked = post.likedByMe
             toShare.isChecked = post.toShare
+//            imageContent.setImageURI(post.attachment?.uri?.toUri())
             like.text = CountCalculator.calculator(post.likes)
             toShare.text = CountCalculator.calculator(post.shared)
             views.text = CountCalculator.calculator(post.numberViews)
@@ -40,7 +42,7 @@ class PostViewHolder(
             imageContent.visibility = View.VISIBLE
 
             val url = "${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}"
-            val urlAttachment = "${BuildConfig.BASE_URL}/images/${post.attachment?.url}"
+            val urlAttachment = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
             val options = RequestOptions()
 
             if (post.attachment == null) {
@@ -52,6 +54,14 @@ class PostViewHolder(
                     .timeout(10_000)
                     .into(binding.imageContent)
             }
+
+//            if (post.attachment?.url != null) {
+//                Glide.with(binding.imageContent)
+//                    .load(urlAttachment)
+//                    .error(R.drawable.ic_error_24)
+//                    .timeout(10_000)
+//                    .into(binding.imageContent)
+//            }
 
             if (post.video == null) {
                 groupVideo.visibility = View.GONE
@@ -90,6 +100,15 @@ class PostViewHolder(
                     Bundle().apply {
                         textPost = gson.toJson(post)
                     })
+            }
+
+            imageContent.setOnClickListener {
+                findNavController(it).navigate(
+                    R.id.action_feedFragment_to_photoFragment2,
+                    Bundle().apply {
+                        textPost = gson.toJson(post)
+                    }
+                )
             }
 
             menu.setOnClickListener {

@@ -30,7 +30,7 @@ interface PostDao {
     @Query("UPDATE PostEntity Set id = :newId, savedOnTheServer = :savedOnTheServer WHERE id = :id")
     suspend fun changeIdPostById(id: Long, newId: Long, savedOnTheServer: Boolean)
 
-    @Query("UPDATE PostEntity Set viewed = 1")
+    @Query("UPDATE PostEntity Set viewed = 1 WHERE viewed = 0")
     suspend fun browse()
 
     suspend fun save(post: PostEntity) =
