@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.collection.intObjectMapOf
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -17,14 +16,9 @@ import com.google.gson.Gson
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentPhotoBinding
-import ru.netology.nmedia.databinding.FragmentPostBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.fragment.PostFragment
-import ru.netology.nmedia.fragment.PostFragment.Companion.textPost
 import ru.netology.nmedia.util.CountCalculator
 import ru.netology.nmedia.util.StringArg
-import ru.netology.nmedia.util.StringArg.getValue
-import ru.netology.nmedia.util.StringArg.setValue
 import ru.netology.nmedia.viewmodel.PostViewModel
 import kotlin.getValue
 
@@ -114,19 +108,21 @@ class PhotoFragment : Fragment() {
 //            photo.setImageURI(post.attachment?.uri?.toUri())
 
             val urlAttachment = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
-            Glide.with(binding.photo)
-                .load(urlAttachment)
-                .error(R.drawable.ic_error_24)
-                .timeout(10_000)
-                .into(binding.photo)
+//            Glide.with(binding.photo)
+//                .load(urlAttachment)
+//                .error(R.drawable.ic_error_24)
+//                .timeout(10_000)
+//                .into(binding.photo)
 
-//            if (post.attachment?.url != null) {
-//                Glide.with(binding.photo)
-//                    .load(urlAttachment)
-//                    .error(R.drawable.ic_error_24)
-//                    .timeout(10_000)
-//                    .into(binding.photo)
-//            }
+            if (post.attachment?.uri == null) {
+                Glide.with(binding.photo)
+                    .load(urlAttachment)
+                    .error(R.drawable.ic_error_24)
+                    .timeout(10_000)
+                    .into(binding.photo)
+            } else {
+                photo.setImageURI(post.attachment.uri.toUri())
+            }
         }
     }
 

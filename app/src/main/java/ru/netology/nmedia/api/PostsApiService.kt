@@ -4,7 +4,6 @@ import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -14,6 +13,8 @@ import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.dto.PushToken
+import ru.netology.nmedia.service.Push
 import java.util.concurrent.TimeUnit
 
 private const val BASE_URL = "${BuildConfig.BASE_URL}/api/"
@@ -93,6 +94,12 @@ interface PostsApiService {
         @Part("name") name: RequestBody,
         @Part media: MultipartBody.Part
     ): Response<AuthState>
+
+    @POST("users/push-tokens")
+    suspend fun sendPushToken(@Body pushToken: PushToken): Response<Unit>
+
+    @POST("pushes")
+    suspend fun testingPushes(@Query("token") token: String, @Body message: Push): Response<Unit>
 }
 
 object PostsApi {

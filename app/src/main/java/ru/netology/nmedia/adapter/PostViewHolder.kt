@@ -48,21 +48,24 @@ class PostViewHolder(
 
             if (post.attachment == null) {
                 imageContent.visibility = View.GONE
-            } else {
-                Glide.with(binding.imageContent)
-                    .load(urlAttachment)
-                    .error(R.drawable.ic_error_24)
-                    .timeout(10_000)
-                    .into(binding.imageContent)
             }
-
-//            if (post.attachment?.url != null) {
+//            else {
 //                Glide.with(binding.imageContent)
 //                    .load(urlAttachment)
 //                    .error(R.drawable.ic_error_24)
 //                    .timeout(10_000)
 //                    .into(binding.imageContent)
 //            }
+
+            if (post.attachment?.uri == null) {
+                Glide.with(binding.imageContent)
+                    .load(urlAttachment)
+                    .error(R.drawable.ic_error_24)
+                    .timeout(10_000)
+                    .into(binding.imageContent)
+            } else {
+                imageContent.setImageURI(post.attachment.uri.toUri())
+            }
 
             if (post.video == null) {
                 groupVideo.visibility = View.GONE

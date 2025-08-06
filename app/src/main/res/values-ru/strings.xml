@@ -39,4 +39,6 @@
     <string name="empty_login">Вы не ввели логин!</string>
     <string name="empty_password">Вы не ввели пароль!</string>
     <string name="empty_password_confirmation">Вы не ввели подтверждение пароля!</string>
+    <string name="push_successfully">%1$s пришло успешно!</string>
+    <string name="push_text">Уведомление которое мы тестируем пришло успешно!</string>
 </resources>
