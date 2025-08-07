@@ -7,6 +7,17 @@
     android:layout_height="match_parent"
     tools:context=".fragment.NewPostFragment">
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/exitConfirmationDialogBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="0dp"
+        app:layoutManager="androidx.cardview.widget.CardView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -36,7 +47,6 @@
                 android:id="@+id/removePhoto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|bottom"
                 android:text="@string/remove"
                 app:layout_constraintBottom_toBottomOf="@id/photo"
                 app:layout_constraintEnd_toEndOf="@id/photo"
@@ -102,7 +112,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                tools:text="@tools:sample/lorem[300]" />
+                tools:text="@tools:sample/lorem[]" />
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/group"

@@ -40,6 +40,7 @@ class PostViewHolder(
             groupVideo.visibility = View.VISIBLE
             content.visibility = View.VISIBLE
             imageContent.visibility = View.VISIBLE
+            menu.visibility = if (post.ownedByMe) View.VISIBLE else View.INVISIBLE
 
             val url = "${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}"
             val urlAttachment = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"

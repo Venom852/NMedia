@@ -8,9 +8,12 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Media
@@ -44,7 +47,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
                     }
                 }
 
-                dao.insertPosts(newBody.map { it.copy(savedOnTheServer = true) }.toEntity())
+                dao.insertPosts(body.map { it.copy(savedOnTheServer = true) }.toEntity())
                 return
             }
 
@@ -182,7 +185,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 //                    null
                 )
             )
-             return save(postWithAttachment)
+            return save(postWithAttachment)
         } catch (e: AppError) {
             throw e
         } catch (e: ErrorCode400And500) {
@@ -201,6 +204,83 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             )
 
             val response = PostsApi.retrofitService.upload(media)
+            if (response.isSuccessful) {
+                return response.body() ?: throw ApiError(response.code(), response.message())
+            }
+
+            if (response.code() in 400..599) {
+                throw ErrorCode400And500
+            }
+
+            throw ApiError(response.code(), response.message())
+        } catch (e: ErrorCode400And500) {
+            throw ErrorCode400And500
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun signIn(login: String, password: String): AuthState {
+        try {
+            val response = PostsApi.retrofitService.updateUser(login, password)
+            if (response.isSuccessful) {
+                return response.body() ?: throw ApiError(response.code(), response.message())
+            }
+
+            if (response.code() in 400..599) {
+                throw ErrorCode400And500
+            }
+
+            throw ApiError(response.code(), response.message())
+        } catch (e: ErrorCode400And500) {
+            throw ErrorCode400And500
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun signUp(userName: String, login: String, password: String): AuthState {
+        try {
+            val response = PostsApi.retrofitService.registerUser(login, password, userName)
+            if (response.isSuccessful) {
+                return response.body() ?: throw ApiError(response.code(), response.message())
+            }
+
+            if (response.code() in 400..599) {
+                throw ErrorCode400And500
+            }
+
+            throw ApiError(response.code(), response.message())
+        } catch (e: ErrorCode400And500) {
+            throw ErrorCode400And500
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun signUpWithAPhoto(
+        userName: String,
+        login: String,
+        password: String,
+        media: MediaUpload
+    ): AuthState {
+        try {
+
+            val media = MultipartBody.Part.createFormData(
+                "file", media.file.name, media.file.asRequestBody()
+            )
+            val response = PostsApi.retrofitService.registerWithPhoto(
+                login.toRequestBody("text/plain".toMediaType()),
+                password.toRequestBody("text/plain".toMediaType()),
+                userName.toRequestBody("text/plain".toMediaType()),
+                media
+            )
             if (response.isSuccessful) {
                 return response.body() ?: throw ApiError(response.code(), response.message())
             }

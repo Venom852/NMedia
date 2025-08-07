@@ -30,6 +30,8 @@ import com.github.dhaval2404.imagepicker.ImagePicker
 import com.github.dhaval2404.imagepicker.constant.ImageProvider
 import androidx.core.view.MenuProvider
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.databinding.ConfirmationOfExitBinding
 
 class NewPostFragment : Fragment() {
     companion object {
@@ -47,6 +49,9 @@ class NewPostFragment : Fragment() {
         val binding = FragmentNewPostBinding.inflate(layoutInflater, container, false)
         val bindingErrorCode400And500 =
             ErrorCode400And500Binding.inflate(layoutInflater, container, false)
+        val bindingConfirmationOfExit =
+            ConfirmationOfExitBinding.inflate(layoutInflater, container, false)
+
         val dialog = BottomSheetDialog(requireContext())
         val viewModel: PostViewModel by activityViewModels()
         val dao = AppDb.getInstance(requireContext()).postDao
@@ -146,19 +151,18 @@ class NewPostFragment : Fragment() {
                         }
                         true
                     }
+
+                    R.id.signOut -> {
+                        dialog.setCancelable(false)
+                        dialog.setContentView(bindingConfirmationOfExit.root)
+                        dialog.show()
+                        true
+                    }
+
                     else -> false
                 }
 
         }, viewLifecycleOwner)
-
-//        binding.ok.setOnClickListener {
-//            if (!binding.content.text.isNullOrBlank()) {
-//                val content = binding.content.text.toString()
-//                viewModel.saveContent(content)
-//                AndroidUtils.hideKeyboard(requireView())
-//            }
-//            viewModel.edited.value = viewModel.empty
-//        }
 
         viewModel.postCreated.observe(viewLifecycleOwner) {
             findNavController().navigateUp()
@@ -183,6 +187,16 @@ class NewPostFragment : Fragment() {
         binding.cancel.setOnClickListener {
             viewModel.edited.value = viewModel.empty
             findNavController().navigateUp()
+        }
+
+        bindingConfirmationOfExit.close.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        bindingConfirmationOfExit.signOut.setOnClickListener {
+            AppAuth.getInstance().removeAuth()
+            dialog.dismiss()
+            findNavController().navigate(R.id.action_newPostFragment_to_feedFragment)
         }
 
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {

@@ -23,4 +23,20 @@
     <string name="clearly">Понятно</string>
     <string name="oops_something_went_wrong_please_try_again">Упс, что-то пошло не так... Пожалуйста, попробуйте еще раз!</string>
     <string name="recent_entries">Свежие записи</string>
+    <string name="sign_in">Войти в систему</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="sign_out">Выйти из системы</string>
+    <string name="enter_your_username">Введите имя пользователя</string>
+    <string name="enter_the_password">Введите пароль</string>
+    <string name="authorization">Вы не можете совершать данное действие. Пожалуйста, пройдите авторизацию.</string>
+    <string name="confirmation">Вы действительно хотите выйти?</string>
+    <string name="enter_your_login">Введите логин</string>
+    <string name="confirm_the_password">Подтвердите пароль</string>
+    <string name="password_confirmation">Пароль и пароль подтверждения не совпадают!</string>
+    <string name="adding_a_picture_or_photo">Вы можете добавить картинку или фото для своего аватара</string>
+    <string name="your_avatar">Ваш аватар:</string>
+    <string name="empty_user_name">Вы не ввели имя пользователя!</string>
+    <string name="empty_login">Вы не ввели логин!</string>
+    <string name="empty_password">Вы не ввели пароль!</string>
+    <string name="empty_password_confirmation">Вы не ввели подтверждение пароля!</string>
 </resources>

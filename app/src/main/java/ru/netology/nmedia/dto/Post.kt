@@ -3,6 +3,7 @@ package ru.netology.nmedia.dto
 data class Post(
     val id: Long,
     val author: String,
+    val authorId: Long,
     val authorAvatar: String?,
     val video: String?,
     val content: String?,
@@ -14,5 +15,6 @@ data class Post(
     val shared: Long,
     val numberViews: Long,
     val savedOnTheServer: Boolean,
-    val viewed: Boolean
+    val viewed: Boolean,
+    val ownedByMe: Boolean
 )
