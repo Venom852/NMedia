@@ -180,9 +180,8 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             val postWithAttachment = post.copy(
                 attachment = Attachment(
                     media.id,
-                    null,
                     AttachmentType.IMAGE,
-//                    null
+                    post.attachment?.uri
                 )
             )
             return save(postWithAttachment)

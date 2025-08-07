@@ -27,13 +27,11 @@ import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
 import androidx.core.view.MenuProvider
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import ru.netology.nmedia.auth.AuthState
+import com.google.firebase.installations.FirebaseInstallations
 import ru.netology.nmedia.databinding.ConfirmationOfExitBinding
-import ru.netology.nmedia.viewmodel.SignInViewModel
 
 class AppActivity : AppCompatActivity() {
     private val viewModel: AuthViewModel by viewModels()
-    private val viewModelSignInView: SignInViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +70,30 @@ class AppActivity : AppCompatActivity() {
             }
         }
 
+        viewModel.data.observe(this) {
+            invalidateOptionsMenu()
+        }
+
+        FirebaseInstallations.getInstance().id.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                println("some stuff happened: ${task.exception}")
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            println(token)
+        }
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                println("some stuff happened: ${task.exception}")
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            println(token)
+        }
+
         checkGoogleApiAvailability()
 
         addMenuProvider(object : MenuProvider {
@@ -104,7 +126,6 @@ class AppActivity : AppCompatActivity() {
                         dialog.setCancelable(false)
                         dialog.setContentView(bindingConfirmationOfExit.root)
                         dialog.show()
-//                        AppAuth.getInstance().removeAuth()
                         true
                     }
 
@@ -118,6 +139,8 @@ class AppActivity : AppCompatActivity() {
 
         bindingConfirmationOfExit.signOut.setOnClickListener {
             AppAuth.getInstance().removeAuth()
+            findNavController(R.id.fragmentContainer)
+                .navigate(R.id.nav_main)
             dialog.dismiss()
         }
     }

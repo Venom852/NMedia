@@ -27,8 +27,11 @@ import ru.netology.nmedia.fragment.NewPostFragment.Companion.NEW_POST_KEY
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textContentArg
 import ru.netology.nmedia.util.SwipeDirection
 import ru.netology.nmedia.util.detectSwipe
+import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.SignInViewModel
 import ru.netology.nmedia.viewmodel.SignUpViewModel
+import kotlin.getValue
+import androidx.fragment.app.viewModels
 
 class FeedFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
@@ -45,11 +48,14 @@ class FeedFragment : Fragment() {
 
         applyInset(binding.main)
 
-        val dialog = BottomSheetDialog(requireContext())
-        var authorization = false
         val viewModel: PostViewModel by activityViewModels()
         val viewModelSignIn: SignInViewModel by activityViewModels()
         val viewModelSignUp: SignUpViewModel by activityViewModels()
+        val viewModelAuth: AuthViewModel by viewModels()
+
+        val dialog = BottomSheetDialog(requireContext())
+        var authorization = viewModelAuth.authenticated
+
         val adapter = PostAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
                 if (post.ownedByMe) {

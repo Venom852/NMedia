@@ -17,10 +17,12 @@ import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.toEntity
+import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.error.ErrorCode400And500
 import ru.netology.nmedia.error.UnknownError
 import ru.netology.nmedia.model.FeedModel
@@ -185,38 +187,39 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value?.let {
             viewModelScope.launch {
                 oldPosts = data.value?.posts.orEmpty()
-                val post = it.copy(content = content)
+                var post = it.copy(content = content)
                 var postServer = empty
 
-//                if (_photo.value?.uri != null) {
-//                    _photo.value?.uri?.let { uri ->
-//                        post = post.copy(
-//                            attachment = Attachment(
-//                                url = null,
-//                                description = null,
-//                                type = AttachmentType.IMAGE,
-//                                uri = uri.toString()
-//                            )
-//                        )
-//                    }
-//                    dao.save(PostEntity.fromDto(post))
-//                } else {
-//                    dao.save(PostEntity.fromDto(post))
-//                }
-//                _postCreated.value = Unit
+                if (_photo.value?.uri != null) {
+                    _photo.value?.uri?.let { uri ->
+                        post = post.copy(
+                            attachment = Attachment(
+                                url = "null",
+                                type = AttachmentType.IMAGE,
+                                uri = uri.toString()
+                            )
+                        )
+                    }
+                    dao.save(PostEntity.fromDto(post))
+                } else {
+                    dao.save(PostEntity.fromDto(post))
+                }
+                _postCreated.value = Unit
                 try {
-                    when (_photo.value) {
-                        noPhoto -> postServer = repository.save(post)
-                        else -> _photo.value?.file?.let { file ->
+                    if (post.attachment?.uri == null) {
+                        postServer = repository.save(post)
+                    } else {
+                        _photo.value?.file?.let { file ->
                             postServer = repository.saveWithAttachment(post, MediaUpload(file))
                         }
                     }
 
-                    _postCreated.value = Unit
+                    print(postServer)
+//                    _postCreated.value = Unit
                     if (post.id == 0L) {
                         oldPost = data.value?.posts.orEmpty().first()
-                        dao.save(PostEntity.fromDto(postServer))
-//                        dao.changeIdPostById(oldPost.id, postServer.id, savedOnTheServer = true)
+//                        dao.save(PostEntity.fromDto(postServer))
+                        dao.changeIdPostById(oldPost.id, postServer.id, savedOnTheServer = true)
                     }
                 } catch (e: ErrorCode400And500) {
                     _bottomSheet.value = Unit

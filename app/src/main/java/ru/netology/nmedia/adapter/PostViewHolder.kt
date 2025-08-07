@@ -56,12 +56,14 @@ class PostViewHolder(
                     .into(binding.imageContent)
             }
 
-//            if (post.attachment?.url != null) {
+//            if (post.attachment?.uri == null) {
 //                Glide.with(binding.imageContent)
 //                    .load(urlAttachment)
 //                    .error(R.drawable.ic_error_24)
 //                    .timeout(10_000)
 //                    .into(binding.imageContent)
+//            } else {
+//                imageContent.setImageURI(post.attachment.uri.toUri())
 //            }
 
             if (post.video == null) {

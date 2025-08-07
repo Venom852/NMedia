@@ -13,6 +13,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import kotlin.random.Random
 
 class FCMService : FirebaseMessagingService() {
@@ -36,11 +37,24 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        println("Firebase token: $token")
+        AppAuth.getInstance().sendPushToken(token)
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
         val notificationMessage = message.data[action]
+        val push = gson.fromJson(message.data[content], Push::class.java)
+        val userId = AppAuth.getInstance().authStateFlow.value.id
+
+        when (push.recipientId) {
+            userId -> handlePush(push)
+            null -> handlePush(push)
+        }
+
+        when  {
+            push.recipientId == 0L && push.recipientId != userId -> AppAuth.getInstance().sendPushToken()
+            push.recipientId != 0L && push.recipientId != userId -> AppAuth.getInstance().sendPushToken()
+        }
+
         Action.entries.forEach{
             if (it.toString() == notificationMessage){
                 message.data[action]?.let {
@@ -52,6 +66,22 @@ class FCMService : FirebaseMessagingService() {
                 }
             }
         }
+    }
+
+    private fun handlePush(push: Push) {
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(
+                getString(
+                    R.string.push_successfully,
+                    push.content
+                )
+            )
+            .setStyle(NotificationCompat.BigTextStyle().bigText(getString(R.string.push_text)))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+
+        notify(notification)
     }
 
     private fun handleLike(content: Like) {
@@ -118,4 +148,9 @@ data class NewPost(
     val userName: String,
     val postId: Long,
     val postName: String
+)
+
+data class Push(
+    val recipientId: Long?,
+    val content: String
 )
