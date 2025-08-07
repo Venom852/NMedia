@@ -139,6 +139,8 @@ class AppActivity : AppCompatActivity() {
 
         bindingConfirmationOfExit.signOut.setOnClickListener {
             AppAuth.getInstance().removeAuth()
+            findNavController(R.id.fragmentContainer)
+                .navigate(R.id.nav_main)
             dialog.dismiss()
         }
     }

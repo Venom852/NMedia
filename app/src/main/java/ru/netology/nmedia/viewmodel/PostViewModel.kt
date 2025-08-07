@@ -206,9 +206,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 _postCreated.value = Unit
                 try {
-                    when (_photo.value) {
-                        noPhoto -> postServer = repository.save(post)
-                        else -> _photo.value?.file?.let { file ->
+                    if (post.attachment?.uri == null) {
+                        postServer = repository.save(post)
+                    } else {
+                        _photo.value?.file?.let { file ->
                             postServer = repository.saveWithAttachment(post, MediaUpload(file))
                         }
                     }

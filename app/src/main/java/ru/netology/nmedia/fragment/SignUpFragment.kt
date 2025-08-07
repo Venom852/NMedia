@@ -11,7 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.github.dhaval2404.imagepicker.constant.ImageProvider
@@ -37,7 +37,7 @@ class SignUpFragment : Fragment() {
             ErrorCode400And500Binding.inflate(layoutInflater, container, false)
 
         val dialog = BottomSheetDialog(requireContext())
-        val viewModel: SignUpViewModel by activityViewModels()
+        val viewModel: SignUpViewModel by viewModels()
 
         val pickPhotoLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
