@@ -28,9 +28,21 @@ import androidx.core.view.MenuProvider
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.installations.FirebaseInstallations
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.databinding.ConfirmationOfExitBinding
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AppActivity : AppCompatActivity() {
+    @Inject
+    lateinit var auth: AppAuth
+    @Inject
+    lateinit var firebaseMessaging: FirebaseMessaging
+    @Inject
+    lateinit var firebaseInstallations: FirebaseInstallations
+    @Inject
+    lateinit var googleApiAvailability: GoogleApiAvailability
+
     private val viewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,7 +86,7 @@ class AppActivity : AppCompatActivity() {
             invalidateOptionsMenu()
         }
 
-        FirebaseInstallations.getInstance().id.addOnCompleteListener { task ->
+        firebaseInstallations.id.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
                 println("some stuff happened: ${task.exception}")
                 return@addOnCompleteListener
@@ -84,7 +96,7 @@ class AppActivity : AppCompatActivity() {
             println(token)
         }
 
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+        firebaseMessaging.token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
                 println("some stuff happened: ${task.exception}")
                 return@addOnCompleteListener
@@ -138,7 +150,7 @@ class AppActivity : AppCompatActivity() {
         }
 
         bindingConfirmationOfExit.signOut.setOnClickListener {
-            AppAuth.getInstance().removeAuth()
+            auth.removeAuth()
             findNavController(R.id.fragmentContainer)
                 .navigate(R.id.nav_main)
             dialog.dismiss()
@@ -160,7 +172,7 @@ class AppActivity : AppCompatActivity() {
     }
 
     private fun checkGoogleApiAvailability() {
-        with(GoogleApiAvailability.getInstance()) {
+        with(googleApiAvailability) {
             val code = isGooglePlayServicesAvailable(this@AppActivity)
             if (code == ConnectionResult.SUCCESS) {
                 return@with
@@ -173,7 +185,7 @@ class AppActivity : AppCompatActivity() {
                 .show()
         }
 
-        FirebaseMessaging.getInstance().token.addOnSuccessListener {
+        firebaseMessaging.token.addOnSuccessListener {
             println(it)
         }
     }

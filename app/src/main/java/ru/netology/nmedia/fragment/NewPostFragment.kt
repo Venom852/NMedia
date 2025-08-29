@@ -21,7 +21,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.databinding.ErrorCode400And500Binding
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
@@ -29,9 +28,12 @@ import kotlinx.coroutines.launch
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.github.dhaval2404.imagepicker.constant.ImageProvider
 import androidx.core.view.MenuProvider
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
-import ru.netology.nmedia.databinding.ConfirmationOfExitBinding
+import ru.netology.nmedia.dao.PostDao
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class NewPostFragment : Fragment() {
     companion object {
         const val NEW_POST_KEY = "newPost"
@@ -39,6 +41,9 @@ class NewPostFragment : Fragment() {
         var Bundle.textArg by StringArg
         var Bundle.textContentArg by StringArg
     }
+
+    @Inject
+    lateinit var dao: PostDao
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,7 +56,6 @@ class NewPostFragment : Fragment() {
 
         val dialog = BottomSheetDialog(requireContext())
         val viewModel: PostViewModel by activityViewModels()
-        val dao = AppDb.getInstance(requireContext()).postDao
 
         arguments?.textArg?.let {
             binding.content.setText(it)

@@ -1,8 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -42,6 +43,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = '11'
+        freeCompilerArgs = ['-XXLanguage:+PropertyParamAnnotationDefaultTargetMode']
     }
 }
 
@@ -65,9 +67,13 @@ dependencies {
     implementation libs.converter.gson
     implementation libs.logging.interceptor
     implementation libs.imagepicker
+    implementation libs.hilt.android
+    implementation libs.androidx.room.ktx
 
     coreLibraryDesugaring libs.desugar.jdk.libs
-    kapt libs.kapt
+    ksp libs.androidx.room.compiler
+    ksp libs.compiler.glide
+    ksp libs.hilt.compiler
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit

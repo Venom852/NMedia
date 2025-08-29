@@ -1,14 +1,14 @@
 package ru.netology.nmedia.viewmodel
 
-import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import kotlinx.coroutines.flow.map
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.catch
@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dao.PostDao
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
@@ -29,13 +28,18 @@ import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
+import javax.inject.Inject
 import kotlin.collections.orEmpty
 import kotlin.concurrent.thread
 
-class PostViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class PostViewModel @Inject constructor(
+    private val repository: PostRepository,
+    private val dao: PostDao,
+    auth: AppAuth
+) : ViewModel() {
     val empty = Post(
         id = 0,
         author = "Me",
@@ -56,11 +60,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     )
 
     private val noPhoto = PhotoModel()
-    private val dao: PostDao = AppDb.getInstance(application).postDao
-    private val repository: PostRepository = PostRepositoryImpl(dao)
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    val data: LiveData<FeedModel> = AppAuth.getInstance()
-        .authStateFlow
+    val data: LiveData<FeedModel> = auth.authStateFlow
         .flatMapLatest { (myId, _) ->
             repository.data
                 .map { posts ->
@@ -187,39 +189,38 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value?.let {
             viewModelScope.launch {
                 oldPosts = data.value?.posts.orEmpty()
-                var post = it.copy(content = content)
+                val post = it.copy(content = content)
                 var postServer = empty
 
-                if (_photo.value?.uri != null) {
-                    _photo.value?.uri?.let { uri ->
-                        post = post.copy(
-                            attachment = Attachment(
-                                url = "null",
-                                type = AttachmentType.IMAGE,
-                                uri = uri.toString()
-                            )
-                        )
-                    }
-                    dao.save(PostEntity.fromDto(post))
-                } else {
-                    dao.save(PostEntity.fromDto(post))
-                }
-                _postCreated.value = Unit
+//                if (_photo.value?.uri != null) {
+//                    _photo.value?.uri?.let { uri ->
+//                        post = post.copy(
+//                            attachment = Attachment(
+//                                url = "null",
+//                                type = AttachmentType.IMAGE,
+//                                uri = uri.toString()
+//                            )
+//                        )
+//                    }
+//                    dao.save(PostEntity.fromDto(post))
+//                } else {
+//                    dao.save(PostEntity.fromDto(post))
+//                }
+//                _postCreated.value = Unit
                 try {
-                    if (post.attachment?.uri == null) {
-                        postServer = repository.save(post)
-                    } else {
-                        _photo.value?.file?.let { file ->
+                    when(_photo.value) {
+                        noPhoto -> postServer = repository.save(post)
+                        else -> _photo.value?.file?.let { file ->
                             postServer = repository.saveWithAttachment(post, MediaUpload(file))
                         }
                     }
 
-                    print(postServer)
-//                    _postCreated.value = Unit
+//                    print(postServer)
+                    _postCreated.value = Unit
                     if (post.id == 0L) {
                         oldPost = data.value?.posts.orEmpty().first()
-//                        dao.save(PostEntity.fromDto(postServer))
-                        dao.changeIdPostById(oldPost.id, postServer.id, savedOnTheServer = true)
+                        dao.save(PostEntity.fromDto(postServer))
+//                        dao.changeIdPostById(oldPost.id, postServer.id, savedOnTheServer = true)
                     }
                 } catch (e: ErrorCode400And500) {
                     _bottomSheet.value = Unit

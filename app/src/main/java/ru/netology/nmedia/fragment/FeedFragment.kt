@@ -32,7 +32,9 @@ import ru.netology.nmedia.viewmodel.SignInViewModel
 import ru.netology.nmedia.viewmodel.SignUpViewModel
 import kotlin.getValue
 import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class FeedFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
