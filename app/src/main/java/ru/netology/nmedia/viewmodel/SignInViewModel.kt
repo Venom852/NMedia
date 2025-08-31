@@ -1,28 +1,23 @@
 package ru.netology.nmedia.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asFlow
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.dao.PostDao
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.error.ErrorCode400And500
 import ru.netology.nmedia.error.UnknownError
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.util.SingleLiveEvent
+import javax.inject.Inject
 
-class SignInViewModel(application: Application): AndroidViewModel(application) {
-
-    private val dao: PostDao = AppDb.getInstance(application).postDao
-    private val repository: PostRepository = PostRepositoryImpl(dao)
+@HiltViewModel
+class SignInViewModel @Inject constructor(
+    private val repository: PostRepository
+): ViewModel() {
     private val _authState = MutableLiveData(AuthState())
     val authState: LiveData<AuthState>
         get() =_authState

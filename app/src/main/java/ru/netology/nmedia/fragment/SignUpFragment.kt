@@ -17,6 +17,7 @@ import com.github.dhaval2404.imagepicker.ImagePicker
 import com.github.dhaval2404.imagepicker.constant.ImageProvider
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.ErrorCode400And500Binding
@@ -24,9 +25,14 @@ import ru.netology.nmedia.databinding.FragmentSignUpBinding
 import ru.netology.nmedia.util.SwipeDirection
 import ru.netology.nmedia.util.detectSwipe
 import ru.netology.nmedia.viewmodel.SignUpViewModel
+import javax.inject.Inject
 import kotlin.getValue
 
+@AndroidEntryPoint
 class SignUpFragment : Fragment() {
+    @Inject
+    lateinit var auth: AppAuth
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -88,7 +94,7 @@ class SignUpFragment : Fragment() {
 
             viewModel.authState.observe(viewLifecycleOwner) {
                 if (it.token != null) {
-                    AppAuth.getInstance().setAuth(it.id, it.token)
+                    auth.setAuth(it.id, it.token)
                     findNavController().navigateUp()
                 }
             }

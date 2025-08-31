@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.ErrorCode400And500Binding
@@ -18,9 +19,14 @@ import ru.netology.nmedia.databinding.FragmentSignInBinding
 import ru.netology.nmedia.util.SwipeDirection
 import ru.netology.nmedia.util.detectSwipe
 import ru.netology.nmedia.viewmodel.SignInViewModel
+import javax.inject.Inject
 import kotlin.getValue
 
+@AndroidEntryPoint
 class SignInFragment : Fragment() {
+    @Inject
+    lateinit var auth: AppAuth
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -52,7 +58,7 @@ class SignInFragment : Fragment() {
 
             viewModel.authState.observe(viewLifecycleOwner) {
                 if (it.token != null) {
-                    AppAuth.getInstance().setAuth(it.id, it.token)
+                    auth.setAuth(it.id, it.token)
                     findNavController().navigateUp()
                 }
             }
