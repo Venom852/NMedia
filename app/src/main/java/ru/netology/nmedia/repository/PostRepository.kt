@@ -1,6 +1,6 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.LiveData
+import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dto.Media
@@ -9,7 +9,7 @@ import ru.netology.nmedia.dto.Post
 
 interface PostRepository {
 
-    val data: Flow<List<Post>>
+    val data: Flow<PagingData<Post>>
     suspend fun getAll()
     suspend fun save(post: Post): Post
     suspend fun removeById(id: Long)

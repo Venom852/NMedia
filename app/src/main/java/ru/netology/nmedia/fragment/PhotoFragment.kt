@@ -10,9 +10,15 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.paging.map
 import com.bumptech.glide.Glide
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentPhotoBinding
@@ -85,11 +91,15 @@ class PhotoFragment : Fragment() {
                 findNavController().navigateUp()
             }
 
-            viewModel.data.observe(viewLifecycleOwner) {
-                it.posts.forEach { post ->
-                    if (post.id == postId) {
-                        Companion.post = post
-                        setValues(binding, post)
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.data.collectLatest {
+                        it.map { post ->
+                            if (post.id == postId) {
+                                Companion.post = post
+                                setValues(binding, post)
+                            }
+                        }
                     }
                 }
             }
@@ -105,23 +115,17 @@ class PhotoFragment : Fragment() {
             like.text = CountCalculator.calculator(post.likes)
             toShare.text = CountCalculator.calculator(post.shared)
             views.text = CountCalculator.calculator(post.numberViews)
-//            photo.setImageURI(post.attachment?.uri?.toUri())
 
             val urlAttachment = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
-//            Glide.with(binding.photo)
-//                .load(urlAttachment)
-//                .error(R.drawable.ic_error_24)
-//                .timeout(10_000)
-//                .into(binding.photo)
 
-            if (post.attachment?.uri == null) {
-                Glide.with(binding.photo)
+            when {
+                post.attachment == null -> photo.visibility = View.GONE
+                post.attachment.uri == null -> Glide.with(binding.photo)
                     .load(urlAttachment)
                     .error(R.drawable.ic_error_24)
                     .timeout(10_000)
                     .into(binding.photo)
-            } else {
-                photo.setImageURI(post.attachment.uri.toUri())
+                else -> photo.setImageURI(post.attachment.uri.toUri())
             }
         }
     }

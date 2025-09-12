@@ -33,7 +33,6 @@ class PostViewHolder(
             published.text = post.published.toString()
             like.isChecked = post.likedByMe
             toShare.isChecked = post.toShare
-//            imageContent.setImageURI(post.attachment?.uri?.toUri())
             like.text = CountCalculator.calculator(post.likes)
             toShare.text = CountCalculator.calculator(post.shared)
             views.text = CountCalculator.calculator(post.numberViews)
@@ -46,25 +45,15 @@ class PostViewHolder(
             val urlAttachment = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
             val options = RequestOptions()
 
-            if (post.attachment == null) {
-                imageContent.visibility = View.GONE
-            } else {
-                Glide.with(binding.imageContent)
+            when {
+                post.attachment == null -> imageContent.visibility = View.GONE
+                post.attachment.uri == null -> Glide.with(binding.imageContent)
                     .load(urlAttachment)
                     .error(R.drawable.ic_error_24)
                     .timeout(10_000)
                     .into(binding.imageContent)
+                else -> imageContent.setImageURI(post.attachment.uri.toUri())
             }
-
-//            if (post.attachment?.uri == null) {
-//                Glide.with(binding.imageContent)
-//                    .load(urlAttachment)
-//                    .error(R.drawable.ic_error_24)
-//                    .timeout(10_000)
-//                    .into(binding.imageContent)
-//            } else {
-//                imageContent.setImageURI(post.attachment.uri.toUri())
-//            }
 
             if (post.video == null) {
                 groupVideo.visibility = View.GONE
