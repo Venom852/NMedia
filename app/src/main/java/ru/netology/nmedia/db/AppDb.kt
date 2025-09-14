@@ -14,5 +14,5 @@ import ru.netology.nmedia.entity.PostRemoteKeyEntity
 @TypeConverters(Converter::class)
 abstract class AppDb : RoomDatabase() {
     abstract val postDao: PostDao
-    abstract fun postRemoteKeyDao(): PostRemoteKeyDao
+    abstract val postRemoteKeyDao: PostRemoteKeyDao
 }

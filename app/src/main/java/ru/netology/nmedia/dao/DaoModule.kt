@@ -13,5 +13,5 @@ object DaoModule {
     fun providePostDao(appDb: AppDb): PostDao = appDb.postDao
 
     @Provides
-    fun providePostRemoteKeyDao(appDb: AppDb): PostRemoteKeyDao = appDb.postRemoteKeyDao()
+    fun providePostRemoteKeyDao(appDb: AppDb): PostRemoteKeyDao = appDb.postRemoteKeyDao
 }

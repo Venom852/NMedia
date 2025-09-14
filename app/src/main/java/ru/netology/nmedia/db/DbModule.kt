@@ -21,9 +21,4 @@ object DbModule {
             .fallbackToDestructiveMigration(false)
             .build()
     }
-
-//    @Provides
-//    fun providePostDao(
-//        appDb: AppDb
-//    ): PostDao = appDb.postDao
 }
