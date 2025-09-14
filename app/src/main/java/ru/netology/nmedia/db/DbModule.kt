@@ -22,8 +22,8 @@ object DbModule {
             .build()
     }
 
-    @Provides
-    fun providePostDao(
-        appDb: AppDb
-    ): PostDao = appDb.postDao
+//    @Provides
+//    fun providePostDao(
+//        appDb: AppDb
+//    ): PostDao = appDb.postDao
 }

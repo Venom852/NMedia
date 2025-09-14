@@ -2,6 +2,7 @@ package ru.netology.nmedia.repository
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.asLiveData
+import androidx.paging.ExperimentalPagingApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -36,16 +37,22 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.map
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.dao.PostRemoteKeyDao
 
 @Singleton
+@OptIn(ExperimentalPagingApi::class)
 class PostRepositoryImpl @Inject constructor(
     private val dao: PostDao,
-    private val apiService: ApiService
+    private val apiService: ApiService,
+    appDb: AppDb,
+    postRemoteKeyDao: PostRemoteKeyDao
 ) : PostRepository {
     override val data: Flow<PagingData<Post>> = Pager(
         config = PagingConfig(pageSize = 5, enablePlaceholders = false),
         pagingSourceFactory = { dao.getPagingSource() },
+        remoteMediator = PostRemoteMediator(apiService, appDb, dao, postRemoteKeyDao)
     ).flow.map {
         it.map(PostEntity::toDto)
     }
