@@ -36,9 +36,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.adapter.PostLoadingStateAdapter
 import ru.netology.nmedia.auth.AppAuth
 import javax.inject.Inject
 
@@ -67,7 +70,7 @@ class FeedFragment : Fragment() {
         val viewModelAuth: AuthViewModel by viewModels()
 
         val dialog = BottomSheetDialog(requireContext())
-        var authorization = viewModelAuth.authenticated
+        val authorization = viewModelAuth.authenticated
 
         val adapter = PostAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
@@ -106,7 +109,36 @@ class FeedFragment : Fragment() {
             }
         })
 
-        binding.main.adapter = adapter
+        binding.main.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = PostLoadingStateAdapter(object : PostLoadingStateAdapter.OnInteractionListener {
+                override fun onRetry() {
+                    adapter.retry()
+                }
+            }),
+            footer = PostLoadingStateAdapter(object : PostLoadingStateAdapter.OnInteractionListener {
+                override fun onRetry() {
+                    adapter.retry()
+                }
+            }))
+
+//        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+//            0, ItemTouchHelper.START or ItemTouchHelper.END
+//        ) {
+//            override fun onMove(
+//                recyclerView: RecyclerView,
+//                viewHolder: RecyclerView.ViewHolder,
+//                target: RecyclerView.ViewHolder
+//            ): Boolean {
+//                TODO("Not yet implemented")
+//            }
+//
+//            override fun onSwiped(
+//                viewHolder: RecyclerView.ViewHolder,
+//                direction: Int
+//            ) {
+//                println("DO SOMETHING")
+//            }
+//        }).attachToRecyclerView(binding.list)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -118,9 +150,10 @@ class FeedFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 adapter.loadStateFlow.collectLatest { state ->
                     binding.srl.isRefreshing =
-                        state.refresh is LoadState.Loading ||
-                                state.prepend is LoadState.Loading ||
-                                state.append is LoadState.Loading
+                        state.refresh is LoadState.Loading
+//                                ||
+//                                state.prepend is LoadState.Loading ||
+//                                state.append is LoadState.Loading
                 }
             }
         }

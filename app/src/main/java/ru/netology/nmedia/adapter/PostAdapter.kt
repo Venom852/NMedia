@@ -1,26 +1,100 @@
 package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import androidx.paging.PagingDataAdapter
-import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import ru.netology.nmedia.BuildConfig
+import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
+import ru.netology.nmedia.databinding.CardAdBinding
+import ru.netology.nmedia.databinding.DatePostBinding
+import ru.netology.nmedia.dto.Ad
+import ru.netology.nmedia.dto.DatePost
+import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.Post
 
 class PostAdapter(
     private val onInteractionListener: OnInteractionListener
-) : PagingDataAdapter<Post, PostViewHolder>(PostDiffCallback()) {
+) : PagingDataAdapter<FeedItem, RecyclerView.ViewHolder>(PostDiffCallback()) {
+    private val typeAd = 0
+    private val typePost = 1
+    private val typeDate = 2
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        val binding = CardPostBinding.inflate(layoutInflater, parent, false)
-        return PostViewHolder(binding, onInteractionListener)
-    }
-
-    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        getItem(position)?.let {
-            holder.bind(it)
+    override fun getItemViewType(position: Int): Int {
+        return when (getItem(position)) {
+            is Ad -> typeAd
+            is Post -> typePost
+            is DatePost -> typeDate
+            null -> throw IllegalArgumentException("unknown item type")
         }
     }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
+        return when (viewType) {
+            typeAd -> AdViewHolder(
+                CardAdBinding.inflate(layoutInflater, parent, false),
+                onInteractionListener
+            )
+            typePost -> PostViewHolder(
+                CardPostBinding.inflate(layoutInflater, parent, false),
+                onInteractionListener
+            )
+            typeDate -> DatePostViewHolder(
+                DatePostBinding.inflate(layoutInflater, parent, false)
+            )
+            else -> throw IllegalArgumentException("unknown view type: $viewType")
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        // FIXME: students will do in HW
+        getItem(position)?.let {
+            when (it) {
+                is Post -> (holder as? PostViewHolder)?.bind(it)
+                is Ad -> (holder as? AdViewHolder)?.bind(it)
+                is DatePost -> (holder as? DatePostViewHolder)?.bind(it)
+            }
+        }
+    }
+
+    class AdViewHolder(
+        private val binding: CardAdBinding,
+        private val onInteractionListener: OnInteractionListener,
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(ad: Ad) {
+            binding.apply {
+                val url = "${BuildConfig.BASE_URL}/media/${ad.image}"
+                val options = RequestOptions()
+//                image.load("${BuildConfig.BASE_URL}/media/${ad.image}")
+                Glide.with(binding.image)
+                    .load(url)
+                    .error(R.drawable.ic_error_24)
+                    .timeout(10_000)
+                    .apply(options.circleCrop())
+                    .into(binding.image)
+                image.setOnClickListener {
+                    onInteractionListener.onAdClick(ad)
+                }
+            }
+        }
+    }
+
+    class DatePostViewHolder(
+        private val binding: DatePostBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(datePost: DatePost) {
+            binding.apply {
+                dateText.text = datePost.date
+            }
+        }
+    }
 }

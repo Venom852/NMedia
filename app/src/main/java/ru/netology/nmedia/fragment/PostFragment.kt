@@ -25,19 +25,28 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.databinding.FragmentPostBinding
 import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.BuildConfig
+import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.databinding.ErrorCode400And500Binding
+import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textContentArg
 import ru.netology.nmedia.util.CountCalculator
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.util.SwipeDirection
 import ru.netology.nmedia.util.detectSwipe
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PostFragment : Fragment() {
 
+    @Inject
+    lateinit var dao: PostDao
     companion object {
         private var post = Post(
             id = 0,
@@ -128,12 +137,16 @@ class PostFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.data.collectLatest {
-                        it.map { post ->
-                            if (post.id == postId) {
-                                Companion.post = post
-                                setValues(binding, post)
-                            }
+//                        it.map { feedItem ->
+//                            if (feedItem.id == postId) {
+//                                post = dao.getPost(feedItem.id)
+//                                setValues(binding, post)
+//                            }
+//                        }
+                        CoroutineScope(Dispatchers.Default).launch {
+                            post = dao.getPost(postId).toDto()
                         }
+                        setValues(binding, post)
                     }
                 }
             }

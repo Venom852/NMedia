@@ -21,7 +21,6 @@ import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.entity.toEntity
 import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.error.ApiError
@@ -36,10 +35,14 @@ import androidx.paging.PagingData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
+import androidx.paging.insertSeparators
 import androidx.paging.map
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.dao.PostRemoteKeyDao
+import ru.netology.nmedia.dto.FeedItem
+import ru.netology.nmedia.dto.Ad
+import kotlin.random.Random
 
 @Singleton
 @OptIn(ExperimentalPagingApi::class)
@@ -49,12 +52,21 @@ class PostRepositoryImpl @Inject constructor(
     appDb: AppDb,
     postRemoteKeyDao: PostRemoteKeyDao
 ) : PostRepository {
-    override val data: Flow<PagingData<Post>> = Pager(
+    override val data: Flow<PagingData<FeedItem>> = Pager(
         config = PagingConfig(pageSize = 5, enablePlaceholders = false),
         pagingSourceFactory = { dao.getPagingSource() },
         remoteMediator = PostRemoteMediator(apiService, appDb, dao, postRemoteKeyDao)
     ).flow.map {
         it.map(PostEntity::toDto)
+            .insertSeparators { previous, _, ->
+                if (previous?.id?.rem(5) == 0L) {
+                    Ad(Random.nextLong(), "https://netology.ru", "figma.jpg")
+                } else {
+                    null
+                }
+            }
+    }.map {
+
     }
 
     @SuppressLint("CheckResult")

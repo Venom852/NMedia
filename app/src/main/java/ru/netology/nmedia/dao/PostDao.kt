@@ -17,6 +17,9 @@ interface PostDao {
     @Query("SELECT * FROM PostEntity ORDER BY id DESC")
     fun getPagingSource(): PagingSource<Int, PostEntity>
 
+    @Query("SELECT * FROM PostEntity WHERE id = :id")
+    fun getPost(id: Long): PostEntity
+
 //    @Query("SELECT * FROM PostEntity WHERE viewed == 1 ORDER BY id DESC")
 //    fun getAll(): Flow<List<PostEntity>>
 

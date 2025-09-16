@@ -71,6 +71,7 @@ dependencies {
     implementation libs.androidx.room.ktx
     implementation libs.androidx.paging.runtime.ktx
     implementation libs.androidx.room.paging
+    implementation libs.androidx.recyclerview
 
     coreLibraryDesugaring libs.desugar.jdk.libs
     ksp libs.androidx.room.compiler

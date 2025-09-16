@@ -61,4 +61,5 @@
     <string name="empty_password_confirmation">You did not enter the password confirmation!</string>
     <string name="push_successfully">%1$s has come successfully!</string>
     <string name="push_text">Notification the one we are testing has arrived successfully!</string>
+    <string name="ad_description">Advertisement</string>
 </resources>
