@@ -102,10 +102,7 @@ class PostViewModel @Inject constructor(
 
     fun browse() {
         viewModelScope.launch {
-            data.asLiveData(Dispatchers.Default).value?.map {
-                newerCount = repository.getNewerCount(it.id)
-                return@map
-            }
+            //TODO: Implement receiving posts
             dao.browse()
             dao.getAll().asLiveData(Dispatchers.Default)
         }
@@ -154,9 +151,7 @@ class PostViewModel @Inject constructor(
 
     fun likeById(id: Long) {
         viewModelScope.launch {
-            data.asLiveData(Dispatchers.Default).value?.map {
-                oldPosts.add(it)
-            }
+            //TODO: Implement receiving posts
             val postLikedByMe = oldPosts.find { it.id == id }?.likedByMe
             dao.likeById(id)
             try {
@@ -177,9 +172,7 @@ class PostViewModel @Inject constructor(
 
     fun removeById(id: Long) {
         viewModelScope.launch {
-            data.asLiveData(Dispatchers.Default).value?.map {
-                oldPosts.add(it)
-            }
+            //TODO: Implement receiving posts
             dao.removeById(id)
             try {
 //                repository.removeById(id)
@@ -198,9 +191,7 @@ class PostViewModel @Inject constructor(
     fun saveContent(content: String) {
         edited.value?.let {
             viewModelScope.launch {
-                data.asLiveData(Dispatchers.Default).value?.map { postData ->
-                    oldPosts.add(postData)
-                }
+                //TODO: Implement receiving posts
 
                 var post = it.copy(content = content)
                 var postServer = empty
@@ -266,13 +257,5 @@ class PostViewModel @Inject constructor(
 
     fun changePhoto(uri: Uri?, file: File?) {
         _photo.value = PhotoModel(uri, file)
-    }
-
-    fun PagingData<Post>.listPost(pagingData: PagingData<Post>?): MutableList<Post> {
-        val list = mutableListOf<Post>()
-        pagingData?.map {
-            list.add(it)
-        }
-        return list
     }
 }

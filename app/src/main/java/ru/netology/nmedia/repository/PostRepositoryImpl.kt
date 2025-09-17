@@ -59,11 +59,7 @@ class PostRepositoryImpl @Inject constructor(
                 val body = response.body() ?: throw ApiError(response.code(), response.message())
                 var newBody = emptyList<Post>()
 
-                data.asLiveData().value?.map {
-                    newBody = body.map { postServer ->
-                        if (postServer.id == it.id) postServer.copy(viewed = true) else postServer
-                    }
-                }
+                //TODO: Implement receiving posts
 
                 dao.insertPosts(body.map { it.copy(savedOnTheServer = true) }.toEntity())
                 return
