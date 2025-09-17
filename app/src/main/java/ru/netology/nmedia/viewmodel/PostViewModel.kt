@@ -33,9 +33,17 @@ import java.io.File
 import javax.inject.Inject
 import kotlin.concurrent.thread
 import androidx.paging.map
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.toList
 import ru.netology.nmedia.dto.Attachment
+import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.enumeration.AttachmentType
 
 @SuppressLint("CheckResult")
@@ -79,6 +87,7 @@ class PostViewModel @Inject constructor(
                 }
             }
         }
+
     private val _dataState = MutableLiveData(FeedModelState())
     val dataState: LiveData<FeedModelState>
         get() = _dataState
@@ -94,7 +103,7 @@ class PostViewModel @Inject constructor(
     val photo: LiveData<PhotoModel>
         get() = _photo
     private var oldPost = empty
-    private var oldPosts = mutableListOf<Post>()
+    private var oldPosts = emptyList<Post>()
 
     init {
         loadPosts()
@@ -102,12 +111,9 @@ class PostViewModel @Inject constructor(
 
     fun browse() {
         viewModelScope.launch {
-            data.asLiveData(Dispatchers.Default).value?.map {
-                newerCount = repository.getNewerCount(it.id)
-                return@map
-            }
+            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+            newerCount = repository.getNewerCount(oldPosts.first().id)
             dao.browse()
-            dao.getAll().asLiveData(Dispatchers.Default)
         }
     }
 
@@ -154,13 +160,11 @@ class PostViewModel @Inject constructor(
 
     fun likeById(id: Long) {
         viewModelScope.launch {
-            data.asLiveData(Dispatchers.Default).value?.map {
-                oldPosts.add(it)
-            }
+            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
             val postLikedByMe = oldPosts.find { it.id == id }?.likedByMe
             dao.likeById(id)
             try {
-//                repository.likeById(id, postLikedByMe)
+                repository.likeById(id, postLikedByMe)
             } catch (e: ErrorCode400And500) {
                 dao.insertPosts(oldPosts.toEntity())
                 _bottomSheet.value = Unit
@@ -177,12 +181,10 @@ class PostViewModel @Inject constructor(
 
     fun removeById(id: Long) {
         viewModelScope.launch {
-            data.asLiveData(Dispatchers.Default).value?.map {
-                oldPosts.add(it)
-            }
+            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
             dao.removeById(id)
             try {
-//                repository.removeById(id)
+                repository.removeById(id)
             } catch (e: ErrorCode400And500) {
                 dao.insertPosts(oldPosts.toEntity())
                 _bottomSheet.value = Unit
@@ -198,9 +200,7 @@ class PostViewModel @Inject constructor(
     fun saveContent(content: String) {
         edited.value?.let {
             viewModelScope.launch {
-                data.asLiveData(Dispatchers.Default).value?.map { postData ->
-                    oldPosts.add(postData)
-                }
+                oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
 
                 var post = it.copy(content = content)
                 var postServer = empty
@@ -221,19 +221,16 @@ class PostViewModel @Inject constructor(
                 }
                 _postCreated.value = Unit
                 try {
-//                    when(_photo.value) {
-//                        noPhoto -> postServer = repository.save(post)
-//                        else -> _photo.value?.file?.let { file ->
-//                            postServer = repository.saveWithAttachment(post, MediaUpload(file))
-//                        }
-//                    }
+                    when(_photo.value) {
+                        noPhoto -> postServer = repository.save(post)
+                        else -> _photo.value?.file?.let { file ->
+                            postServer = repository.saveWithAttachment(post, MediaUpload(file))
+                        }
+                    }
 
-//                    print(postServer)
-//                    _postCreated.value = Unit
                     if (post.id == 0L) {
                         oldPost = oldPosts.first()
-//                        dao.save(PostEntity.fromDto(postServer))
-//                        dao.changeIdPostById(oldPost.id, postServer.id, savedOnTheServer = true)
+                        dao.changeIdPostById(oldPost.id, postServer.id, savedOnTheServer = true)
                         _photo.value = noPhoto
                     }
                 } catch (e: ErrorCode400And500) {
@@ -266,13 +263,5 @@ class PostViewModel @Inject constructor(
 
     fun changePhoto(uri: Uri?, file: File?) {
         _photo.value = PhotoModel(uri, file)
-    }
-
-    fun PagingData<Post>.listPost(pagingData: PagingData<Post>?): MutableList<Post> {
-        val list = mutableListOf<Post>()
-        pagingData?.map {
-            list.add(it)
-        }
-        return list
     }
 }

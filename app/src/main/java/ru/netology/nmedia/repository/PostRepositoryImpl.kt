@@ -1,7 +1,6 @@
 package ru.netology.nmedia.repository
 
 import android.annotation.SuppressLint
-import androidx.lifecycle.asLiveData
 import androidx.paging.ExperimentalPagingApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -37,6 +36,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.map
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.stateIn
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.dao.PostRemoteKeyDao
@@ -65,8 +66,9 @@ class PostRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 val body = response.body() ?: throw ApiError(response.code(), response.message())
                 var newBody = emptyList<Post>()
+                val posts= dao.getAll().stateIn(CoroutineScope(Dispatchers.Default)).value.toDto()
 
-                data.asLiveData().value?.map {
+                posts.map {
                     newBody = body.map { postServer ->
                         if (postServer.id == it.id) postServer.copy(viewed = true) else postServer
                     }
