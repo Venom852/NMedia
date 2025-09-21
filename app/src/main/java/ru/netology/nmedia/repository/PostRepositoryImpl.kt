@@ -65,14 +65,14 @@ class PostRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 val body = response.body() ?: throw ApiError(response.code(), response.message())
-                var newBody = emptyList<Post>()
-                val posts= dao.getAll().stateIn(CoroutineScope(Dispatchers.Default)).value.toDto()
+//                var newBody = emptyList<Post>()
+//                val posts= dao.getAll().stateIn(CoroutineScope(Dispatchers.Default)).value.toDto()
 
-                posts.map {
-                    newBody = body.map { postServer ->
-                        if (postServer.id == it.id) postServer.copy(viewed = true) else postServer
-                    }
-                }
+//                posts.map {
+//                    newBody = body.map { postServer ->
+//                        if (postServer.id == it.id) postServer.copy(viewed = true) else postServer
+//                    }
+//                }
 
                 dao.insertPosts(body.map { it.copy(savedOnTheServer = true) }.toEntity())
                 return

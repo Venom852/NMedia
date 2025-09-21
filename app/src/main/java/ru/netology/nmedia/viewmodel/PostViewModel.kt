@@ -111,7 +111,10 @@ class PostViewModel @Inject constructor(
 
     fun browse() {
         viewModelScope.launch {
-            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+//            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+            CoroutineScope(Dispatchers.Default).launch {
+                oldPosts = dao.getAll().toDto()
+            }
             newerCount = repository.getNewerCount(oldPosts.first().id)
             dao.browse()
         }
@@ -160,7 +163,10 @@ class PostViewModel @Inject constructor(
 
     fun likeById(id: Long) {
         viewModelScope.launch {
-            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+//            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+            CoroutineScope(Dispatchers.Default).launch {
+                oldPosts = dao.getAll().toDto()
+            }
             val postLikedByMe = oldPosts.find { it.id == id }?.likedByMe
             dao.likeById(id)
             try {
@@ -181,7 +187,10 @@ class PostViewModel @Inject constructor(
 
     fun removeById(id: Long) {
         viewModelScope.launch {
-            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+//            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+            CoroutineScope(Dispatchers.Default).launch {
+                oldPosts = dao.getAll().toDto()
+            }
             dao.removeById(id)
             try {
                 repository.removeById(id)
@@ -200,7 +209,10 @@ class PostViewModel @Inject constructor(
     fun saveContent(content: String) {
         edited.value?.let {
             viewModelScope.launch {
-                oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+//                oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+                CoroutineScope(Dispatchers.Default).launch {
+                    oldPosts = dao.getAll().toDto()
+                }
 
                 var post = it.copy(content = content)
                 var postServer = empty
