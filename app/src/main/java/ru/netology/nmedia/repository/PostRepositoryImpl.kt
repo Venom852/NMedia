@@ -1,6 +1,7 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.asLiveData
+import android.annotation.SuppressLint
+import androidx.paging.ExperimentalPagingApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -30,28 +31,48 @@ import java.io.IOException
 import ru.netology.nmedia.error.AppError
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.paging.PagingData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
+import androidx.paging.map
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.stateIn
+import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.dao.PostRemoteKeyDao
 
 @Singleton
+@OptIn(ExperimentalPagingApi::class)
 class PostRepositoryImpl @Inject constructor(
     private val dao: PostDao,
-    private val apiService: ApiService
+    private val apiService: ApiService,
+    appDb: AppDb,
+    postRemoteKeyDao: PostRemoteKeyDao
 ) : PostRepository {
-    override val data = dao.getAll().map { it.toDto() }.flowOn(Dispatchers.Default)
+    override val data: Flow<PagingData<Post>> = Pager(
+        config = PagingConfig(pageSize = 5, enablePlaceholders = false),
+        pagingSourceFactory = { dao.getPagingSource() },
+        remoteMediator = PostRemoteMediator(apiService, appDb, dao, postRemoteKeyDao)
+    ).flow.map {
+        it.map(PostEntity::toDto)
+    }
 
+    @SuppressLint("CheckResult")
     override suspend fun getAll() {
         try {
             val response = apiService.getAll()
 
             if (response.isSuccessful) {
                 val body = response.body() ?: throw ApiError(response.code(), response.message())
-                var newBody = emptyList<Post>()
-                val postsDao = data.asLiveData().value.orEmpty()
+//                var newBody = emptyList<Post>()
+//                val posts= dao.getAll().stateIn(CoroutineScope(Dispatchers.Default)).value.toDto()
 
-                postsDao.forEach { post ->
-                    newBody = body.map { postServer ->
-                        if (postServer.id == post.id) postServer.copy(viewed = true) else postServer
-                    }
-                }
+//                posts.map {
+//                    newBody = body.map { postServer ->
+//                        if (postServer.id == it.id) postServer.copy(viewed = true) else postServer
+//                    }
+//                }
 
                 dao.insertPosts(body.map { it.copy(savedOnTheServer = true) }.toEntity())
                 return

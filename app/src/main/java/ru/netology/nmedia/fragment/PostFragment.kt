@@ -12,8 +12,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
+import androidx.paging.map
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -21,6 +25,8 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.databinding.FragmentPostBinding
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.databinding.ErrorCode400And500Binding
 import ru.netology.nmedia.dto.Post
@@ -62,7 +68,8 @@ class PostFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentPostBinding.inflate(layoutInflater, container, false)
-        val bindingErrorCode400And500 = ErrorCode400And500Binding.inflate(layoutInflater, container, false)
+        val bindingErrorCode400And500 =
+            ErrorCode400And500Binding.inflate(layoutInflater, container, false)
         applyInset(binding.postFragment)
         val viewModel: PostViewModel by activityViewModels()
         val dialog = BottomSheetDialog(requireContext())
@@ -118,11 +125,15 @@ class PostFragment : Fragment() {
                 }.show()
             }
 
-            viewModel.data.observe(viewLifecycleOwner) {
-                it.posts.forEach { post ->
-                    if (post.id == postId) {
-                        Companion.post = post
-                        setValues(binding, post)
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.data.collectLatest {
+                        it.map { post ->
+                            if (post.id == postId) {
+                                Companion.post = post
+                                setValues(binding, post)
+                            }
+                        }
                     }
                 }
             }
@@ -137,7 +148,7 @@ class PostFragment : Fragment() {
             }
 
             viewModel.dataState.observe(viewLifecycleOwner) {
-                if (it.errorCode300){
+                if (it.errorCode300) {
                     findNavController().navigateUp()
                 }
             }
@@ -172,7 +183,6 @@ class PostFragment : Fragment() {
             published.text = post.published.toString()
             like.isChecked = post.likedByMe
             toShare.isChecked = post.toShare
-//            imageContent.setImageURI(post.attachment?.uri?.toUri())
             like.text = CountCalculator.calculator(post.likes)
             toShare.text = CountCalculator.calculator(post.shared)
             views.text = CountCalculator.calculator(post.numberViews)
@@ -188,22 +198,15 @@ class PostFragment : Fragment() {
             if (post.attachment == null) {
                 imageContent.visibility = View.GONE
             }
-//            else {
-//                Glide.with(binding.imageContent)
-//                    .load(urlAttachment)
-//                    .error(R.drawable.ic_error_24)
-//                    .timeout(10_000)
-//                    .into(binding.imageContent)
-//            }
 
-            if (post.attachment?.uri == null) {
-                Glide.with(binding.imageContent)
+            when {
+                post.attachment == null -> imageContent.visibility = View.GONE
+                post.attachment.uri == null -> Glide.with(binding.imageContent)
                     .load(urlAttachment)
                     .error(R.drawable.ic_error_24)
                     .timeout(10_000)
                     .into(binding.imageContent)
-            } else {
-                imageContent.setImageURI(post.attachment.uri.toUri())
+                else -> imageContent.setImageURI(post.attachment.uri.toUri())
             }
 
             if (post.video == null) {
