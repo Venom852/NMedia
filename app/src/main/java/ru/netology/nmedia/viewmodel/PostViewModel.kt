@@ -5,14 +5,11 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.flow.map
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.flatMap
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -33,14 +30,13 @@ import java.io.File
 import javax.inject.Inject
 import kotlin.concurrent.thread
 import androidx.paging.map
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.stateIn
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.enumeration.AttachmentType
 
-@SuppressLint("CheckResult")
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class PostViewModel @Inject constructor(
@@ -108,12 +104,10 @@ class PostViewModel @Inject constructor(
 
     fun browse() {
         viewModelScope.launch {
-            data.asLiveData(Dispatchers.Default).value?.map {
-                newerCount = repository.getNewerCount(it.id)
-                return@map
-            }
+            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+            newerCount = repository.getNewerCount(oldPosts.first().id)
+
             dao.browse()
-            dao.getAll().asLiveData(Dispatchers.Default)
         }
     }
 
@@ -160,10 +154,7 @@ class PostViewModel @Inject constructor(
 
     fun likeById(id: Long) {
         viewModelScope.launch {
-//            data.asLiveData(Dispatchers.Default).value?.map {
-//                oldPosts.add(dao.getPost(it.id))
-//            }
-            oldPosts = dao.getAll().asLiveData(Dispatchers.Default).value.orEmpty().toDto()
+            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
             val postLikedByMe = oldPosts.find { it.id == id }?.likedByMe
             dao.likeById(id)
             try {
@@ -184,10 +175,7 @@ class PostViewModel @Inject constructor(
 
     fun removeById(id: Long) {
         viewModelScope.launch {
-//            data.asLiveData(Dispatchers.Default).value?.map {
-//                oldPosts.add(it)
-//            }
-            oldPosts = dao.getAll().asLiveData(Dispatchers.Default).value.orEmpty().toDto()
+            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
             dao.removeById(id)
             try {
                 repository.removeById(id)
@@ -206,10 +194,7 @@ class PostViewModel @Inject constructor(
     fun saveContent(content: String) {
         edited.value?.let {
             viewModelScope.launch {
-//                data.asLiveData(Dispatchers.Default).value?.map { postData ->
-//                    oldPosts.add(postData)
-//                }
-                oldPosts = dao.getAll().asLiveData(Dispatchers.Default).value.orEmpty().toDto()
+                oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
 
                 var post = it.copy(content = content)
                 var postServer = empty
@@ -237,11 +222,8 @@ class PostViewModel @Inject constructor(
                         }
                     }
 
-                    print(postServer)
-//                    _postCreated.value = Unit
                     if (post.id == 0L) {
                         oldPost = oldPosts.first()
-//                        dao.save(PostEntity.fromDto(postServer))
                         dao.changeIdPostById(oldPost.id, postServer.id, savedOnTheServer = true)
                         _photo.value = noPhoto
                     }
@@ -275,13 +257,5 @@ class PostViewModel @Inject constructor(
 
     fun changePhoto(uri: Uri?, file: File?) {
         _photo.value = PhotoModel(uri, file)
-    }
-
-    fun PagingData<Post>.listPost(pagingData: PagingData<Post>?): MutableList<Post> {
-        val list = mutableListOf<Post>()
-        pagingData?.map {
-            list.add(it)
-        }
-        return list
     }
 }

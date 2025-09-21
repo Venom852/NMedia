@@ -2,6 +2,7 @@ package ru.netology.nmedia.repository
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.paging.ExperimentalPagingApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -37,14 +38,19 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.insertSeparators
 import androidx.paging.map
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.stateIn
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.dao.PostRemoteKeyDao
 import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.Ad
+import ru.netology.nmedia.dto.DatePost
+import ru.netology.nmedia.entity.toDto
 import kotlin.random.Random
 
 @Singleton
+@SuppressLint("CheckResult")
 @OptIn(ExperimentalPagingApi::class)
 class PostRepositoryImpl @Inject constructor(
     private val dao: PostDao,
@@ -52,21 +58,46 @@ class PostRepositoryImpl @Inject constructor(
     appDb: AppDb,
     postRemoteKeyDao: PostRemoteKeyDao
 ) : PostRepository {
+    var firstToday = 0L
+    var firstYesterday = 0L
     override val data: Flow<PagingData<FeedItem>> = Pager(
-        config = PagingConfig(pageSize = 5, enablePlaceholders = false),
+        config = PagingConfig(pageSize = 5, enablePlaceholders = true),
         pagingSourceFactory = { dao.getPagingSource() },
         remoteMediator = PostRemoteMediator(apiService, appDb, dao, postRemoteKeyDao)
     ).flow.map {
         it.map(PostEntity::toDto)
+            .also {
+//                it.map {
+//                    firstToday = it.published.minus(24)
+//                    firstYesterday = it.published.minus(48)
+//                }
+                it.insertSeparators { previous, _, ->
+
+//                when {
+//                    -> DatePost(Random.nextLong(),)
+//                    previous?.id?.rem(5) == 0L -> Ad(Random.nextLong(), "https://netology.ru", "figma.jpg")
+//                    else -> null
+//                }
+                    if (previous?.id?.rem(5) == 0L) {
+                        Ad(Random.nextLong(), "https://netology.ru", "figma.jpg")
+                    } else {
+                        null
+                    }
+                }
+            }
             .insertSeparators { previous, _, ->
+
+//                when {
+//                    -> DatePost(Random.nextLong(),)
+//                    previous?.id?.rem(5) == 0L -> Ad(Random.nextLong(), "https://netology.ru", "figma.jpg")
+//                    else -> null
+//                }
                 if (previous?.id?.rem(5) == 0L) {
                     Ad(Random.nextLong(), "https://netology.ru", "figma.jpg")
                 } else {
                     null
                 }
             }
-    }.map {
-
     }
 
     @SuppressLint("CheckResult")
@@ -77,8 +108,9 @@ class PostRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 val body = response.body() ?: throw ApiError(response.code(), response.message())
                 var newBody = emptyList<Post>()
+                val posts = dao.getAll().stateIn(CoroutineScope(Dispatchers.Default)).value.toDto()
 
-                data.asLiveData().value?.map {
+                posts.map {
                     newBody = body.map { postServer ->
                         if (postServer.id == it.id) postServer.copy(viewed = true) else postServer
                     }

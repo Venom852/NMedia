@@ -72,13 +72,10 @@ class PostAdapter(
         fun bind(ad: Ad) {
             binding.apply {
                 val url = "${BuildConfig.BASE_URL}/media/${ad.image}"
-                val options = RequestOptions()
-//                image.load("${BuildConfig.BASE_URL}/media/${ad.image}")
                 Glide.with(binding.image)
                     .load(url)
                     .error(R.drawable.ic_error_24)
                     .timeout(10_000)
-                    .apply(options.circleCrop())
                     .into(binding.image)
                 image.setOnClickListener {
                     onInteractionListener.onAdClick(ad)

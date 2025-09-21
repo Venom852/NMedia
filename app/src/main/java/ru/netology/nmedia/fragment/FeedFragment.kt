@@ -121,25 +121,6 @@ class FeedFragment : Fragment() {
                 }
             }))
 
-//        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-//            0, ItemTouchHelper.START or ItemTouchHelper.END
-//        ) {
-//            override fun onMove(
-//                recyclerView: RecyclerView,
-//                viewHolder: RecyclerView.ViewHolder,
-//                target: RecyclerView.ViewHolder
-//            ): Boolean {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun onSwiped(
-//                viewHolder: RecyclerView.ViewHolder,
-//                direction: Int
-//            ) {
-//                println("DO SOMETHING")
-//            }
-//        }).attachToRecyclerView(binding.list)
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.data.collectLatest(adapter::submitData)

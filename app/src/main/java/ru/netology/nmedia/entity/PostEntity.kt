@@ -1,15 +1,11 @@
 package ru.netology.nmedia.entity
 
-import android.net.Uri
-import androidx.core.net.toUri
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.enumeration.AttachmentType
-import ru.netology.nmedia.util.Converter
 
 @Entity
 data class PostEntity(
