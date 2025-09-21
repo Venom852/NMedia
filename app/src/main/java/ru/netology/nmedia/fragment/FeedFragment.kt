@@ -32,10 +32,21 @@ import ru.netology.nmedia.viewmodel.SignInViewModel
 import ru.netology.nmedia.viewmodel.SignUpViewModel
 import kotlin.getValue
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.paging.LoadState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class FeedFragment : Fragment() {
+    @Inject
+    lateinit var auth: AppAuth
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -97,15 +108,24 @@ class FeedFragment : Fragment() {
 
         binding.main.adapter = adapter
 
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            val newPost = adapter.currentList.size < state.posts.size
-            adapter.submitList(state.posts) {
-                if (newPost) {
-                    binding.main.smoothScrollToPosition(0)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.data.collectLatest(adapter::submitData)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                adapter.loadStateFlow.collectLatest { state ->
+                    binding.srl.isRefreshing =
+                        state.refresh is LoadState.Loading ||
+                                state.prepend is LoadState.Loading ||
+                                state.append is LoadState.Loading
                 }
             }
-            binding.emptyText.isVisible = state.empty
         }
+
+        binding.srl.setOnRefreshListener(adapter::refresh)
 
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
@@ -136,14 +156,24 @@ class FeedFragment : Fragment() {
         }
 
         viewModelSignIn.authState.observe(viewLifecycleOwner) {
-            if (it.token != null) {
-                authorization = true
+            if (authorization) {
+                adapter.refresh()
             }
         }
 
         viewModelSignUp.authState.observe(viewLifecycleOwner) {
-            if (it.token != null) {
-                authorization = true
+            if (authorization) {
+                adapter.refresh()
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                auth.authStateFlow.collectLatest { state ->
+                    if (!authorization) {
+                        adapter.refresh()
+                    }
+                }
             }
         }
 
@@ -160,10 +190,6 @@ class FeedFragment : Fragment() {
                 dialog.setContentView(bindingAuthorizationDialogBox.root)
                 dialog.show()
             }
-        }
-
-        binding.srl.setOnRefreshListener {
-            viewModel.refreshPosts()
         }
 
 //        binding.browse.setOnClickListener {

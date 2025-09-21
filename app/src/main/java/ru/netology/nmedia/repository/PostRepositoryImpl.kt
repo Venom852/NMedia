@@ -1,5 +1,6 @@
 package ru.netology.nmedia.repository
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -30,14 +31,26 @@ import java.io.IOException
 import ru.netology.nmedia.error.AppError
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.paging.PagingData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
+import androidx.paging.map
+import ru.netology.nmedia.entity.PostEntity
 
 @Singleton
 class PostRepositoryImpl @Inject constructor(
     private val dao: PostDao,
     private val apiService: ApiService
 ) : PostRepository {
-    override val data = dao.getAll().map { it.toDto() }.flowOn(Dispatchers.Default)
+    override val data: Flow<PagingData<Post>> = Pager(
+        config = PagingConfig(pageSize = 5, enablePlaceholders = false),
+        pagingSourceFactory = { dao.getPagingSource() },
+    ).flow.map {
+        it.map(PostEntity::toDto)
+    }
 
+    @SuppressLint("CheckResult")
     override suspend fun getAll() {
         try {
             val response = apiService.getAll()
@@ -45,13 +58,8 @@ class PostRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 val body = response.body() ?: throw ApiError(response.code(), response.message())
                 var newBody = emptyList<Post>()
-                val postsDao = data.asLiveData().value.orEmpty()
 
-                postsDao.forEach { post ->
-                    newBody = body.map { postServer ->
-                        if (postServer.id == post.id) postServer.copy(viewed = true) else postServer
-                    }
-                }
+                //TODO: Implement receiving posts
 
                 dao.insertPosts(body.map { it.copy(savedOnTheServer = true) }.toEntity())
                 return

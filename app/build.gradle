@@ -69,6 +69,8 @@ dependencies {
     implementation libs.imagepicker
     implementation libs.hilt.android
     implementation libs.androidx.room.ktx
+    implementation libs.androidx.paging.runtime.ktx
+    implementation libs.androidx.room.paging
 
     coreLibraryDesugaring libs.desugar.jdk.libs
     ksp libs.androidx.room.compiler
