@@ -67,7 +67,7 @@ class FeedFragment : Fragment() {
         val viewModelAuth: AuthViewModel by viewModels()
 
         val dialog = BottomSheetDialog(requireContext())
-        var authorization = viewModelAuth.authenticated
+        val authorization = viewModelAuth.authenticated
 
         val adapter = PostAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {

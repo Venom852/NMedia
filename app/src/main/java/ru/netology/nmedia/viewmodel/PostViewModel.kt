@@ -5,12 +5,10 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.flow.map
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.flatMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,14 +32,7 @@ import javax.inject.Inject
 import kotlin.concurrent.thread
 import androidx.paging.map
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.cancellable
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.toList
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.enumeration.AttachmentType
@@ -111,7 +102,6 @@ class PostViewModel @Inject constructor(
 
     fun browse() {
         viewModelScope.launch {
-//            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
             CoroutineScope(Dispatchers.Default).launch {
                 oldPosts = dao.getAll().toDto()
             }
@@ -163,7 +153,6 @@ class PostViewModel @Inject constructor(
 
     fun likeById(id: Long) {
         viewModelScope.launch {
-//            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
             CoroutineScope(Dispatchers.Default).launch {
                 oldPosts = dao.getAll().toDto()
             }
@@ -187,7 +176,6 @@ class PostViewModel @Inject constructor(
 
     fun removeById(id: Long) {
         viewModelScope.launch {
-//            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
             CoroutineScope(Dispatchers.Default).launch {
                 oldPosts = dao.getAll().toDto()
             }
@@ -209,7 +197,6 @@ class PostViewModel @Inject constructor(
     fun saveContent(content: String) {
         edited.value?.let {
             viewModelScope.launch {
-//                oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
                 CoroutineScope(Dispatchers.Default).launch {
                     oldPosts = dao.getAll().toDto()
                 }
