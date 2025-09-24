@@ -42,4 +42,7 @@
     <string name="push_successfully">%1$s пришло успешно!</string>
     <string name="push_text">Уведомление которое мы тестируем пришло успешно!</string>
     <string name="ad_description">Реклама</string>
+    <string name="today">Сегодня</string>
+    <string name="yesterday">Вчера</string>
+    <string name="on_last_week">На прошлой неделе</string>
 </resources>

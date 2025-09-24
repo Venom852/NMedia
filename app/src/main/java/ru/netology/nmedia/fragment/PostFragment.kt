@@ -135,12 +135,6 @@ class PostFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.data.collectLatest {
-//                        it.map { feedItem ->
-//                            if (feedItem.id == postId) {
-//                                post = dao.getPost(feedItem.id)
-//                                setValues(binding, post)
-//                            }
-//                        }
                         CoroutineScope(Dispatchers.Default).launch {
                             post = dao.getPost(postId).toDto()
                         }

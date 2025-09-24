@@ -132,9 +132,6 @@ class FeedFragment : Fragment() {
                 adapter.loadStateFlow.collectLatest { state ->
                     binding.srl.isRefreshing =
                         state.refresh is LoadState.Loading
-//                                ||
-//                                state.prepend is LoadState.Loading ||
-//                                state.append is LoadState.Loading
                 }
             }
         }

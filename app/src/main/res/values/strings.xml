@@ -62,4 +62,7 @@
     <string name="push_successfully">%1$s has come successfully!</string>
     <string name="push_text">Notification the one we are testing has arrived successfully!</string>
     <string name="ad_description">Advertisement</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="on_last_week">On last week</string>
 </resources>

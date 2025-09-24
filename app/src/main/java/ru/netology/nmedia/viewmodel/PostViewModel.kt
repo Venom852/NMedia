@@ -1,10 +1,10 @@
 package ru.netology.nmedia.viewmodel
 
-import android.annotation.SuppressLint
+import android.app.Application
 import android.net.Uri
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.map
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -30,8 +30,9 @@ import java.io.File
 import javax.inject.Inject
 import kotlin.concurrent.thread
 import androidx.paging.map
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.stateIn
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.entity.toDto
@@ -42,8 +43,9 @@ import ru.netology.nmedia.enumeration.AttachmentType
 class PostViewModel @Inject constructor(
     private val repository: PostRepository,
     private val dao: PostDao,
-    auth: AppAuth
-) : ViewModel() {
+    auth: AppAuth,
+    application: Application
+) : AndroidViewModel(application) {
     val empty = Post(
         id = 0,
         author = "Me",
@@ -104,7 +106,9 @@ class PostViewModel @Inject constructor(
 
     fun browse() {
         viewModelScope.launch {
-            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+            CoroutineScope(Dispatchers.Default).launch {
+                oldPosts = dao.getAll().toDto()
+            }
             newerCount = repository.getNewerCount(oldPosts.first().id)
 
             dao.browse()
@@ -154,7 +158,9 @@ class PostViewModel @Inject constructor(
 
     fun likeById(id: Long) {
         viewModelScope.launch {
-            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+            CoroutineScope(Dispatchers.Default).launch {
+                oldPosts = dao.getAll().toDto()
+            }
             val postLikedByMe = oldPosts.find { it.id == id }?.likedByMe
             dao.likeById(id)
             try {
@@ -175,7 +181,9 @@ class PostViewModel @Inject constructor(
 
     fun removeById(id: Long) {
         viewModelScope.launch {
-            oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+            CoroutineScope(Dispatchers.Default).launch {
+                oldPosts = dao.getAll().toDto()
+            }
             dao.removeById(id)
             try {
                 repository.removeById(id)
@@ -194,7 +202,9 @@ class PostViewModel @Inject constructor(
     fun saveContent(content: String) {
         edited.value?.let {
             viewModelScope.launch {
-                oldPosts = dao.getAll().stateIn(viewModelScope).value.toDto()
+                CoroutineScope(Dispatchers.Default).launch {
+                    oldPosts = dao.getAll().toDto()
+                }
 
                 var post = it.copy(content = content)
                 var postServer = empty

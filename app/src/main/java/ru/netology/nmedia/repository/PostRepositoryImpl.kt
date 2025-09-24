@@ -1,8 +1,7 @@
 package ru.netology.nmedia.repository
 
 import android.annotation.SuppressLint
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import android.app.Application
 import androidx.paging.ExperimentalPagingApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -35,68 +34,76 @@ import javax.inject.Singleton
 import androidx.paging.PagingData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import ru.netology.nmedia.R
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.dao.PostRemoteKeyDao
-import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.Ad
+import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.DatePost
 import ru.netology.nmedia.entity.toDto
 import kotlin.random.Random
+import kotlin.time.ExperimentalTime
+import java.time.*
 
 @Singleton
 @SuppressLint("CheckResult")
-@OptIn(ExperimentalPagingApi::class)
+@OptIn(ExperimentalPagingApi::class, ExperimentalTime::class)
 class PostRepositoryImpl @Inject constructor(
     private val dao: PostDao,
     private val apiService: ApiService,
     appDb: AppDb,
-    postRemoteKeyDao: PostRemoteKeyDao
+    postRemoteKeyDao: PostRemoteKeyDao,
+    private val application: Application
 ) : PostRepository {
-    var firstToday = 0L
-    var firstYesterday = 0L
     override val data: Flow<PagingData<FeedItem>> = Pager(
         config = PagingConfig(pageSize = 5, enablePlaceholders = true),
         pagingSourceFactory = { dao.getPagingSource() },
         remoteMediator = PostRemoteMediator(apiService, appDb, dao, postRemoteKeyDao)
     ).flow.map {
         it.map(PostEntity::toDto)
-            .also {
-//                it.map {
-//                    firstToday = it.published.minus(24)
-//                    firstYesterday = it.published.minus(48)
-//                }
-                it.insertSeparators { previous, _, ->
+            .insertSeparators { previousOne, previousTwo ->
+                if (previousOne?.published != null) {
+                    if (previousTwo?.published != null) {
+                        val publishedOne = LocalDateTime.parse(
+                            Instant.ofEpochSecond(previousOne.published
+                            ).toString().dropLast(1))
+                        val publishedTwo = LocalDateTime.parse(
+                            Instant.ofEpochSecond(previousTwo.published
+                            ).toString().dropLast(1))
+                        val timeNow = LocalDateTime.now()
+                        val twentyFourHours = timeNow.minus(Duration.ofHours(24))
+                        val fortEightHours = timeNow.minus(Duration.ofHours(48))
 
-//                when {
-//                    -> DatePost(Random.nextLong(),)
-//                    previous?.id?.rem(5) == 0L -> Ad(Random.nextLong(), "https://netology.ru", "figma.jpg")
-//                    else -> null
-//                }
-                    if (previous?.id?.rem(5) == 0L) {
-                        Ad(Random.nextLong(), "https://netology.ru", "figma.jpg")
-                    } else {
-                        null
-                    }
-                }
+                        when {
+                            publishedTwo.compareTo(twentyFourHours) == -1 ||
+                                    publishedOne.compareTo(twentyFourHours) == 0 -> DatePost(Random.nextLong(),
+                                application.getString(R.string.today))
+
+                            publishedOne.compareTo(twentyFourHours) == 1 &&
+                                    publishedTwo.compareTo(twentyFourHours) == -1 ||
+                                    publishedOne.compareTo(fortEightHours) == 0 -> DatePost(Random.nextLong(),
+                                application.getString(R.string.yesterday))
+
+                            publishedOne.compareTo(fortEightHours) == 1 &&
+                                    publishedTwo.compareTo(fortEightHours) == -1 -> DatePost(Random.nextLong(),
+                                application.getString(R.string.on_last_week))
+
+                            else -> null
+                        }
+                    } else null
+                } else null
             }
-            .insertSeparators { previous, _, ->
-
-//                when {
-//                    -> DatePost(Random.nextLong(),)
-//                    previous?.id?.rem(5) == 0L -> Ad(Random.nextLong(), "https://netology.ru", "figma.jpg")
-//                    else -> null
-//                }
-                if (previous?.id?.rem(5) == 0L) {
-                    Ad(Random.nextLong(), "https://netology.ru", "figma.jpg")
-                } else {
-                    null
-                }
+            .insertSeparators { previous, _ ->
+                if (previous is Post) {
+                    if (previous.id.rem(5) == 0L) {
+                        Ad(Random.nextLong(), "https://netology.ru", "figma.jpg")
+                    } else null
+                } else null
             }
     }
 
@@ -108,7 +115,10 @@ class PostRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 val body = response.body() ?: throw ApiError(response.code(), response.message())
                 var newBody = emptyList<Post>()
-                val posts = dao.getAll().stateIn(CoroutineScope(Dispatchers.Default)).value.toDto()
+                var posts = emptyList<Post>()
+                CoroutineScope(Dispatchers.Default).launch {
+                    posts = dao.getAll().toDto()
+                }
 
                 posts.map {
                     newBody = body.map { postServer ->
