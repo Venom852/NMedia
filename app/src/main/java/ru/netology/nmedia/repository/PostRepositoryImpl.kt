@@ -1,6 +1,5 @@
 package ru.netology.nmedia.repository
 
-import android.annotation.SuppressLint
 import android.app.Application
 import androidx.paging.ExperimentalPagingApi
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +33,7 @@ import javax.inject.Singleton
 import androidx.paging.PagingData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.TerminalSeparatorType
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import kotlinx.coroutines.CoroutineScope
@@ -51,7 +51,6 @@ import kotlin.time.ExperimentalTime
 import java.time.*
 
 @Singleton
-@SuppressLint("CheckResult")
 @OptIn(ExperimentalPagingApi::class, ExperimentalTime::class)
 class PostRepositoryImpl @Inject constructor(
     private val dao: PostDao,
@@ -66,37 +65,42 @@ class PostRepositoryImpl @Inject constructor(
         remoteMediator = PostRemoteMediator(apiService, appDb, dao, postRemoteKeyDao)
     ).flow.map {
         it.map(PostEntity::toDto)
-            .insertSeparators { previousOne, previousTwo ->
-                if (previousOne?.published != null) {
-                    if (previousTwo?.published != null) {
-                        val publishedOne = LocalDateTime.parse(
-                            Instant.ofEpochSecond(previousOne.published
-                            ).toString().dropLast(1))
-                        val publishedTwo = LocalDateTime.parse(
-                            Instant.ofEpochSecond(previousTwo.published
-                            ).toString().dropLast(1))
-                        val timeNow = LocalDateTime.now()
-                        val twentyFourHours = timeNow.minus(Duration.ofHours(24))
-                        val fortEightHours = timeNow.minus(Duration.ofHours(48))
+            .insertSeparators(TerminalSeparatorType.SOURCE_COMPLETE) { previousOne, previousTwo ->
+                val publishedOne = LocalDateTime.parse(
+                    Instant.ofEpochSecond(
+                        previousOne?.published ?: 0
+                    ).toString().dropLast(1))
+                val publishedTwo = LocalDateTime.parse(
+                    Instant.ofEpochSecond(
+                        previousTwo?.published ?: 0
+                    ).toString().dropLast(1))
+                val timeNow = LocalDateTime.now()
+                val twentyFourHours = timeNow.minus(Duration.ofHours(24))
+                val fortEightHours = timeNow.minus(Duration.ofHours(48))
 
-                        when {
+                when {
+                    previousOne == null && publishedTwo.compareTo(twentyFourHours) == 1 ||
+                            previousOne == null && publishedTwo.compareTo(twentyFourHours) == 0
+                        -> DatePost(
+                        Random.nextLong(),
+                        application.getString(R.string.today)
+                    )
+
+                    publishedOne.compareTo(twentyFourHours) == 1 &&
                             publishedTwo.compareTo(twentyFourHours) == -1 ||
-                                    publishedOne.compareTo(twentyFourHours) == 0 -> DatePost(Random.nextLong(),
-                                application.getString(R.string.today))
+                            publishedOne.compareTo(fortEightHours) == 0 -> DatePost(
+                        Random.nextLong(),
+                        application.getString(R.string.yesterday)
+                    )
 
-                            publishedOne.compareTo(twentyFourHours) == 1 &&
-                                    publishedTwo.compareTo(twentyFourHours) == -1 ||
-                                    publishedOne.compareTo(fortEightHours) == 0 -> DatePost(Random.nextLong(),
-                                application.getString(R.string.yesterday))
+                    publishedOne.compareTo(fortEightHours) == 1 &&
+                            publishedTwo.compareTo(fortEightHours) == -1 -> DatePost(
+                        Random.nextLong(),
+                        application.getString(R.string.on_last_week)
+                    )
 
-                            publishedOne.compareTo(fortEightHours) == 1 &&
-                                    publishedTwo.compareTo(fortEightHours) == -1 -> DatePost(Random.nextLong(),
-                                application.getString(R.string.on_last_week))
-
-                            else -> null
-                        }
-                    } else null
-                } else null
+                    else -> null
+                }
             }
             .insertSeparators { previous, _ ->
                 if (previous is Post) {
@@ -107,7 +111,6 @@ class PostRepositoryImpl @Inject constructor(
             }
     }
 
-    @SuppressLint("CheckResult")
     override suspend fun getAll() {
         try {
             val response = apiService.getAll()

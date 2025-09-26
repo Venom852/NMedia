@@ -20,7 +20,6 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragment.PostFragment.Companion.textPost
 import ru.netology.nmedia.util.CountCalculator
 
-
 class PostViewHolder(
     private val binding: CardPostBinding,
     private val onInteractionListener: OnInteractionListener,

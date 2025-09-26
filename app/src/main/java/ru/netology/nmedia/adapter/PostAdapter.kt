@@ -27,7 +27,7 @@ class PostAdapter(
             is Ad -> typeAd
             is Post -> typePost
             is DatePost -> typeDate
-            null -> throw IllegalArgumentException("unknown item type")
+            null -> typePost
         }
     }
 
@@ -50,7 +50,6 @@ class PostAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        // FIXME: students will do in HW
         getItem(position)?.let {
             when (it) {
                 is Post -> (holder as? PostViewHolder)?.bind(it)
